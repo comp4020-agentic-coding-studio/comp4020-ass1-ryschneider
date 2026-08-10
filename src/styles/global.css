@@ -6,11 +6,21 @@
   --accent: #7dd3fc;
   --border: #262b33;
   --radius: 0.75rem;
-  --max-width: 68rem;
 }
 
 * {
   box-sizing: border-box;
+}
+
+html {
+  scroll-snap-type: y proximity;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 body {
@@ -18,111 +28,208 @@ body {
   background: var(--bg);
   color: var(--fg);
   font-family: system-ui, sans-serif;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 a {
   color: var(--accent);
 }
 
-.site-header {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: rgb(15 17 21 / 90%);
-  backdrop-filter: blur(6px);
-  border-bottom: 1px solid var(--border);
-}
-
-.site-header nav {
-  display: flex;
-  gap: 1rem;
-  max-width: var(--max-width);
-  margin: 0 auto;
-  padding: 0.75rem 1.25rem;
-  overflow-x: auto;
-}
-
-.site-header nav a {
-  color: var(--fg-muted);
-  font-size: 0.9rem;
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
   white-space: nowrap;
-  text-decoration: none;
+  border: 0;
 }
 
-.site-header nav a:hover,
-.site-header nav a:focus-visible {
-  color: var(--fg);
+/* Dot rail: a real <nav> landmark, styled as a minimal fixed-position indicator rather than a
+   row of link text, so the page doesn't read as a website with a header. */
+.stage-rail {
+  position: fixed;
+  top: 50%;
+  right: 1rem;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  transform: translateY(-50%);
+}
+
+.stage-rail a {
+  display: block;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 999px;
+  background: var(--border);
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.stage-rail a:hover,
+.stage-rail a:focus-visible {
+  background: var(--fg-muted);
+}
+
+.stage-rail a[aria-current="true"] {
+  background: var(--accent);
+  transform: scale(1.5);
 }
 
 main {
-  max-width: var(--max-width);
-  margin: 0 auto;
-  padding: 0 1.25rem 4rem;
+  display: block;
 }
 
-.hero {
-  max-width: 42rem;
-  padding: 3rem 0 2rem;
+.title-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100svh;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  scroll-snap-align: start;
 }
 
-.hero h1 {
-  margin-bottom: 1rem;
-  font-size: clamp(1.75rem, 4vw, 2.5rem);
+.title-card h1 {
+  max-width: 40rem;
+  margin: 0;
+  font-size: clamp(2rem, 6vw, 3.5rem);
 }
 
-.hero p {
+.title-card p {
+  max-width: 30rem;
+  margin: 1rem 0 0;
   color: var(--fg-muted);
   font-size: 1.1rem;
 }
 
-.stage {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.5rem;
-  padding: 3rem 0;
-  border-top: 1px solid var(--border);
+.title-card .scroll-hint {
+  margin-top: 2.5rem;
+  color: var(--fg-muted);
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  animation: hint-bounce 1.6s ease-in-out infinite;
 }
 
-.stage-panel {
+@media (prefers-reduced-motion: reduce) {
+  .title-card .scroll-hint {
+    animation: none;
+  }
+}
+
+@keyframes hint-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(6px);
+  }
+}
+
+.stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100svh;
+  padding: 3rem 1.25rem;
+  scroll-snap-align: start;
+}
+
+.stage-canvas-wrap {
+  position: relative;
   display: flex;
   justify-content: center;
 }
 
 .stage-canvas {
-  width: 100%;
-  max-width: 360px;
+  width: min(85vmin, 720px);
+  height: min(85vmin, 720px);
   aspect-ratio: 1 / 1;
   background: var(--bg-panel);
   border: 1px solid var(--border);
   border-radius: var(--radius);
 }
 
+.stage-canvas-pixelated {
+  image-rendering: pixelated;
+}
+
+.stage-inset {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  padding: 0.4rem;
+  background: rgb(20 23 29 / 88%);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+}
+
+.stage-inset-label {
+  margin: 0 0 0.3rem;
+  color: var(--fg-muted);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.stage-inset-canvas {
+  display: block;
+  width: 110px;
+  height: 110px;
+  background: #000;
+  border-radius: 0.35rem;
+}
+
+.stage-hud {
+  width: min(92vw, 30rem);
+  margin-top: 1.5rem;
+  padding: 1.1rem 1.4rem;
+  background: rgb(20 23 29 / 80%);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-align: left;
+}
+
 .stage-number {
   margin: 0 0 0.25rem;
   color: var(--accent);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-.stage-content h2 {
-  margin-top: 0;
+.stage-hud h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
 }
 
 .stage-body p {
+  margin: 0 0 0.75rem;
   color: var(--fg-muted);
+  font-size: 0.92rem;
 }
 
 .control {
-  margin: 1.25rem 0;
+  margin: 0.9rem 0;
 }
 
 .control-range-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 0.35rem;
-  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
+  font-size: 0.85rem;
 }
 
 .control-range input[type="range"] {
@@ -161,12 +268,14 @@ main {
 
 @media (width >= 60rem) {
   .stage {
-    grid-template-columns: minmax(280px, 360px) 1fr;
-    align-items: start;
+    position: relative;
   }
 
-  .stage-panel {
-    position: sticky;
-    top: 5rem;
+  .stage-hud {
+    position: absolute;
+    right: 3rem;
+    bottom: 3rem;
+    width: min(24rem, 30vw);
+    margin-top: 0;
   }
 }

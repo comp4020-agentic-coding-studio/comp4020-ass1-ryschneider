@@ -6,80 +6,68 @@ import ToggleControl from "../components/ToggleControl.astro";
 ---
 
 <Layout title="How a rasterized render pipeline works — COMP4020 prototype">
-  <header class="site-header">
-    <nav aria-label="Primary">
-      <a href="#model">Model</a>
-      <a href="#world">World</a>
-      <a href="#view">View</a>
-      <a href="#projection">Projection</a>
-      <a href="#rasterize">Rasterize</a>
-      <a href="#shading">Shading</a>
-    </nav>
-  </header>
+  <nav class="stage-rail" aria-label="Stages">
+    <a href="#model"><span class="visually-hidden">Model space</span></a>
+    <a href="#world"><span class="visually-hidden">Model to world transform</span></a>
+    <a href="#view"><span class="visually-hidden">World to view transform</span></a>
+    <a href="#projection"><span class="visually-hidden">Projection and field of view</span></a>
+    <a href="#rasterize"><span class="visually-hidden">Rasterization</span></a>
+    <a href="#shading"><span class="visually-hidden">Shading</span></a>
+  </nav>
   <main>
-    <section class="hero">
+    <section class="title-card">
       <h1>How a rasterized render pipeline works</h1>
       <p>
-        Every triangle drawn in real time — in a game, a CAD tool, a browser's
-        canvas — passes through the same six stages. Scroll down to walk
-        through each one on a live low-poly sphere, tweaking the numbers as
-        you go. The last stage is the one that matters most: watch the exact
-        same triangles get lit two different ways.
+        Start from a single triangle and build up, stage by stage, to a lit
+        low-poly sphere. Drag the scenes, drag the sliders, watch the shape
+        change.
       </p>
+      <p class="scroll-hint">Scroll ↓</p>
     </section>
 
     <StageSection id="model" number={1} title="Model space">
       <p>
-        Here's the raw geometry: a set of vertices and the triangles that
-        connect them, defined once and untouched by any transform, camera, or
-        light. This icosphere starts as a 12-vertex icosahedron; each
-        subdivision splits every triangle into four and pushes the new points
-        back onto the sphere.
+        One triangle, defined by three points around its own origin — no
+        transform, camera, or light touching it yet.
       </p>
-      <RangeControl id="model-subdivisions" label="Subdivisions" min={0} max={3} step={1} value={1} />
     </StageSection>
 
     <StageSection id="world" number={2} title="Model → world transform">
       <p>
-        A model's vertices are defined around its own origin. Placing it in a
-        scene means multiplying every vertex by a transform matrix — here, a
-        rotation and a uniform scale — to get its position in shared world
-        space.
+        Placing the triangle in a shared world means multiplying every vertex
+        by a transform matrix: rotate it, scale it, move it across the grid.
       </p>
       <RangeControl id="world-rotation" label="Rotation" min={0} max={360} step={1} value={45} unit="°" />
       <RangeControl id="world-scale" label="Scale" min={0.5} max={2} step={0.05} value={1} />
+      <RangeControl id="world-translate-x" label="Move X" min={-2} max={2} step={0.1} value={0} />
+      <RangeControl id="world-translate-z" label="Move Z" min={-2} max={2} step={0.1} value={0} />
     </StageSection>
 
-    <StageSection id="view" number={3} title="World → view (camera) transform">
+    <StageSection id="view" number={3} title="World → view (camera) transform" withInset>
       <p>
-        The camera has its own position and orientation in world space. The
-        view transform re-expresses every vertex relative to the camera
-        instead — as if the camera were nailed to the origin, looking down
-        its own axis.
+        The camera has its own position and orientation in world space. Drag
+        the scene to look around it from outside; the sliders move the camera
+        itself, and the inset shows exactly what it sees.
       </p>
       <RangeControl id="view-azimuth" label="Camera azimuth" min={-180} max={180} step={1} value={40} unit="°" />
       <RangeControl id="view-elevation" label="Camera elevation" min={-80} max={80} step={1} value={20} unit="°" />
       <RangeControl id="view-distance" label="Camera distance" min={1.8} max={6} step={0.1} value={3.2} />
     </StageSection>
 
-    <StageSection id="projection" number={4} title="Projection & clip">
+    <StageSection id="projection" number={4} title="Projection & field of view" withInset>
       <p>
-        The projection matrix maps view-space points into clip space; dividing
-        by the resulting <em>w</em> gives normalized device coordinates in
-        [-1, 1] on every axis — the perspective divide that makes distant
-        things smaller.
+        The projection matrix maps everything inside the camera's frustum
+        into clip space. Widen the field of view and watch the frustum flare
+        out — and the picture it captures distort.
       </p>
       <RangeControl id="projection-fov" label="Field of view" min={20} max={120} step={1} value={55} unit="°" />
-      <RangeControl id="projection-distance" label="Camera distance" min={1.8} max={6} step={0.1} value={3.2} />
     </StageSection>
 
-    <StageSection id="rasterize" number={5} title="Rasterization">
+    <StageSection id="rasterize" number={5} title="Rasterization" canvasSize={160} pixelated>
       <p>
-        Rasterizing a triangle means deciding which pixels its on-screen
-        corners cover, using an edge function to test each pixel and a
-        z-buffer to keep only the nearest triangle at every pixel. Coarser
-        meshes make the underlying flat triangles obvious; finer ones
-        approach a smooth curve.
+        Rasterizing means deciding which pixels a triangle's corners cover.
+        Zoomed into individual pixels here — add faces to see the surface
+        smooth out, or reveal the pixel grid underneath it.
       </p>
       <RangeControl
         id="rasterize-subdivisions"
@@ -87,14 +75,20 @@ import ToggleControl from "../components/ToggleControl.astro";
         min={0}
         max={3}
         step={1}
-        value={1}
+        value={0}
+      />
+      <ToggleControl
+        id="rasterize-pixel-grid-toggle"
+        label="Pixel grid"
+        onLabel="Grid on"
+        offLabel="Grid off"
       />
     </StageSection>
 
     <StageSection id="shading" number={6} title="Shading: per-vertex vs per-pixel">
       <p>
-        The rasterizer above fills every triangle identically either way —
-        what changes is <em>when</em> lighting is computed.
+        The rasterizer fills every triangle identically either way — what
+        changes is <em>when</em> lighting is computed.
         <strong>Gouraud</strong> shading lights each vertex once and interpolates
         the resulting color across the triangle. <strong>Phong</strong> shading
         interpolates the surface normal instead, and lights every pixel

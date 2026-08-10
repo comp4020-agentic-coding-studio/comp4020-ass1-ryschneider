@@ -5,9 +5,11 @@ import { init as initShading } from "./stages/shading";
 import { init as initView } from "./stages/view";
 import { init as initWorld } from "./stages/world";
 import { initScrollController } from "./scroll-controller";
+import { initStageRail } from "./stage-rail";
 
 const stages = [initModel(), initWorld(), initView(), initProjection(), initRasterize(), initShading()].filter(
   (stage) => stage !== null,
 );
 
 initScrollController(stages);
+initStageRail(["model", "world", "view", "projection", "rasterize", "shading"]);
