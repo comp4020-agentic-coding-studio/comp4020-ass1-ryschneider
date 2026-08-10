@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { add, cross, dot, length, lerp, normalize, scale, sub, vec3 } from "./vec3";
+import { add, cross, dot, length, lerp, mul, normalize, scale, sub, vec3 } from "./vec3";
 
 describe("vec3", () => {
   it("adds and subtracts componentwise", () => {
@@ -9,6 +9,10 @@ describe("vec3", () => {
 
   it("scales componentwise", () => {
     expect(scale(vec3(1, -2, 3), 2)).toEqual(vec3(2, -4, 6));
+  });
+
+  it("computes the componentwise product", () => {
+    expect(mul(vec3(2, 3, 4), vec3(5, 6, 7))).toEqual(vec3(10, 18, 28));
   });
 
   it("computes the dot product", () => {

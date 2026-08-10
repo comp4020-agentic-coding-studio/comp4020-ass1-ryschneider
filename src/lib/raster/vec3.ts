@@ -24,6 +24,11 @@ export function dot(a: Vec3, b: Vec3): number {
   return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
+/** Componentwise (Hadamard) product, used to modulate a material color by a light color. */
+export function mul(a: Vec3, b: Vec3): Vec3 {
+  return { x: a.x * b.x, y: a.y * b.y, z: a.z * b.z };
+}
+
 export function cross(a: Vec3, b: Vec3): Vec3 {
   return {
     x: a.y * b.z - a.z * b.y,
