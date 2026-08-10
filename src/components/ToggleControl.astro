@@ -1,0 +1,25 @@
+---
+interface Props {
+  id: string;
+  label: string;
+  onLabel: string;
+  offLabel: string;
+  pressed?: boolean;
+}
+
+const { id, label, onLabel, offLabel, pressed = false } = Astro.props;
+---
+
+<div class="control control-toggle">
+  <span class="control-label" id={`${id}-label`}>{label}</span>
+  <button
+    type="button"
+    id={id}
+    aria-pressed={pressed ? "true" : "false"}
+    aria-labelledby={`${id}-label ${id}`}
+    data-on-label={onLabel}
+    data-off-label={offLabel}
+  >
+    {pressed ? onLabel : offLabel}
+  </button>
+</div>

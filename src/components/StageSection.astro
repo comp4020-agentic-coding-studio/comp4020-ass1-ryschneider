@@ -1,0 +1,22 @@
+---
+interface Props {
+  id: string;
+  number: number;
+  title: string;
+}
+
+const { id, number, title } = Astro.props;
+---
+
+<section class="stage" id={id} data-stage={id}>
+  <div class="stage-panel">
+    <canvas class="stage-canvas" data-canvas width="360" height="360"></canvas>
+  </div>
+  <div class="stage-content">
+    <p class="stage-number">Stage {number} of 6</p>
+    <h2>{title}</h2>
+    <div class="stage-body">
+      <slot />
+    </div>
+  </div>
+</section>
