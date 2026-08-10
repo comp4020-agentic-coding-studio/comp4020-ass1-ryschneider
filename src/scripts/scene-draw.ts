@@ -171,19 +171,19 @@ export function drawPixelGrid(
   width: number,
   height: number,
   cellSize = 8,
-  color = "rgba(0, 0, 0, 0.25)",
+  color = "rgba(0, 0, 0, 0.6)",
 ): void {
   ctx.save();
   ctx.strokeStyle = color;
-  ctx.lineWidth = 1;
+  ctx.lineWidth = Math.min(1, cellSize) * 0.15;
   ctx.beginPath();
   for (let x = 0; x <= width; x += cellSize) {
-    ctx.moveTo(x + 0.5, 0);
-    ctx.lineTo(x + 0.5, height);
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, height);
   }
   for (let y = 0; y <= height; y += cellSize) {
-    ctx.moveTo(0, y + 0.5);
-    ctx.lineTo(width, y + 0.5);
+    ctx.moveTo(0, y);
+    ctx.lineTo(width, y);
   }
   ctx.stroke();
   ctx.restore();
