@@ -1,20 +1,116 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import RangeControl from "../components/RangeControl.astro";
+import StageSection from "../components/StageSection.astro";
+import ToggleControl from "../components/ToggleControl.astro";
 ---
 
-<Layout title="COMP4020 prototype">
-  <header>
+<Layout title="How a rasterized render pipeline works — COMP4020 prototype">
+  <header class="site-header">
     <nav aria-label="Primary">
-      <a href="./">Home</a>
+      <a href="#model">Model</a>
+      <a href="#world">World</a>
+      <a href="#view">View</a>
+      <a href="#projection">Projection</a>
+      <a href="#rasterize">Rasterize</a>
+      <a href="#shading">Shading</a>
     </nav>
   </header>
   <main>
-    <h1>COMP4020 prototype</h1>
-    <p data-testid="intro">
-      Replace this with your prototype. This week's brief is on the course
-      website; <code>spec/README.md</code> explains how the checks in this repo
-      relate to it.
-    </p>
+    <section class="hero">
+      <h1>How a rasterized render pipeline works</h1>
+      <p>
+        Every triangle drawn in real time — in a game, a CAD tool, a browser's
+        canvas — passes through the same six stages. Scroll down to walk
+        through each one on a live low-poly sphere, tweaking the numbers as
+        you go. The last stage is the one that matters most: watch the exact
+        same triangles get lit two different ways.
+      </p>
+    </section>
+
+    <StageSection id="model" number={1} title="Model space">
+      <p>
+        Here's the raw geometry: a set of vertices and the triangles that
+        connect them, defined once and untouched by any transform, camera, or
+        light. This icosphere starts as a 12-vertex icosahedron; each
+        subdivision splits every triangle into four and pushes the new points
+        back onto the sphere.
+      </p>
+      <RangeControl id="model-subdivisions" label="Subdivisions" min={0} max={3} step={1} value={1} />
+    </StageSection>
+
+    <StageSection id="world" number={2} title="Model → world transform">
+      <p>
+        A model's vertices are defined around its own origin. Placing it in a
+        scene means multiplying every vertex by a transform matrix — here, a
+        rotation and a uniform scale — to get its position in shared world
+        space.
+      </p>
+      <RangeControl id="world-rotation" label="Rotation" min={0} max={360} step={1} value={45} unit="°" />
+      <RangeControl id="world-scale" label="Scale" min={0.5} max={2} step={0.05} value={1} />
+    </StageSection>
+
+    <StageSection id="view" number={3} title="World → view (camera) transform">
+      <p>
+        The camera has its own position and orientation in world space. The
+        view transform re-expresses every vertex relative to the camera
+        instead — as if the camera were nailed to the origin, looking down
+        its own axis.
+      </p>
+      <RangeControl id="view-azimuth" label="Camera azimuth" min={-180} max={180} step={1} value={40} unit="°" />
+      <RangeControl id="view-elevation" label="Camera elevation" min={-80} max={80} step={1} value={20} unit="°" />
+      <RangeControl id="view-distance" label="Camera distance" min={1.8} max={6} step={0.1} value={3.2} />
+    </StageSection>
+
+    <StageSection id="projection" number={4} title="Projection & clip">
+      <p>
+        The projection matrix maps view-space points into clip space; dividing
+        by the resulting <em>w</em> gives normalized device coordinates in
+        [-1, 1] on every axis — the perspective divide that makes distant
+        things smaller.
+      </p>
+      <RangeControl id="projection-fov" label="Field of view" min={20} max={120} step={1} value={55} unit="°" />
+      <RangeControl id="projection-distance" label="Camera distance" min={1.8} max={6} step={0.1} value={3.2} />
+    </StageSection>
+
+    <StageSection id="rasterize" number={5} title="Rasterization">
+      <p>
+        Rasterizing a triangle means deciding which pixels its on-screen
+        corners cover, using an edge function to test each pixel and a
+        z-buffer to keep only the nearest triangle at every pixel. Coarser
+        meshes make the underlying flat triangles obvious; finer ones
+        approach a smooth curve.
+      </p>
+      <RangeControl
+        id="rasterize-subdivisions"
+        label="Mesh detail (subdivisions)"
+        min={0}
+        max={3}
+        step={1}
+        value={1}
+      />
+    </StageSection>
+
+    <StageSection id="shading" number={6} title="Shading: per-vertex vs per-pixel">
+      <p>
+        The rasterizer above fills every triangle identically either way —
+        what changes is <em>when</em> lighting is computed.
+        <strong>Gouraud</strong> shading lights each vertex once and interpolates
+        the resulting color across the triangle. <strong>Phong</strong> shading
+        interpolates the surface normal instead, and lights every pixel
+        individually. On a curved, low-poly surface like this one, Gouraud's
+        flat-colored triangles show up as visible banding; Phong keeps
+        highlights smooth.
+      </p>
+      <ToggleControl
+        id="shading-mode-toggle"
+        label="Shading mode"
+        onLabel="Per-pixel (Phong)"
+        offLabel="Per-vertex (Gouraud)"
+      />
+      <RangeControl id="shading-light-azimuth" label="Light azimuth" min={-180} max={180} step={1} value={40} unit="°" />
+      <RangeControl id="shading-shininess" label="Shininess" min={2} max={128} step={1} value={28} />
+    </StageSection>
   </main>
   <script src="../scripts/main.ts"></script>
 </Layout>
