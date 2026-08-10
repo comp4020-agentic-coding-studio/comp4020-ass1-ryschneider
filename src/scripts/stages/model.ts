@@ -1,10 +1,8 @@
-import { blitToCanvas } from "../../lib/raster/framebuffer";
-import { generateIcosphere } from "../../lib/raster/icosphere";
-import { rotateY } from "../../lib/raster/mat4";
-import type { Mesh } from "../../lib/raster/icosphere";
-import { renderFrame } from "../../lib/raster/pipeline";
-import { bindRange, createLoop, getStageElements, prefersReducedMotion, readRange } from "../canvas-utils";
-import { defaultLight, defaultMaterial, defaultProjection, defaultView } from "../scene";
+import { multiply, rotateY } from "../../lib/raster/mat4";
+import { triangleMesh } from "../../lib/raster/triangle";
+import { createLoop, getStageElements, prefersReducedMotion } from "../canvas-utils";
+import { defaultProjection, defaultView } from "../scene";
+import { drawAxes, drawWireframeMesh } from "../scene-draw";
 import type { RegisteredStage } from "../scroll-controller";
 
 export function init(): RegisteredStage | null {
@@ -12,29 +10,16 @@ export function init(): RegisteredStage | null {
   if (!elements) return null;
   const { canvas, ctx } = elements;
 
-  let mesh: Mesh = generateIcosphere(readRange("model-subdivisions", 1));
+  const mesh = triangleMesh();
+  const viewProjection = multiply(defaultProjection(), defaultView());
   let angle = 0;
   const spinRate = prefersReducedMotion() ? 0 : 0.35;
 
   function render(): void {
-    const fb = renderFrame({
-      mesh,
-      model: rotateY(angle),
-      view: defaultView(),
-      projection: defaultProjection(),
-      light: defaultLight,
-      material: defaultMaterial,
-      shadingMode: "gouraud",
-      width: canvas.width,
-      height: canvas.height,
-    });
-    blitToCanvas(fb, ctx);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawAxes(ctx, viewProjection, canvas.width, canvas.height);
+    drawWireframeMesh(ctx, viewProjection, canvas.width, canvas.height, mesh, rotateY(angle));
   }
-
-  bindRange("model-subdivisions", (value) => {
-    mesh = generateIcosphere(Math.round(value));
-    render();
-  });
 
   const loop = createLoop((dt) => {
     angle += spinRate * dt;

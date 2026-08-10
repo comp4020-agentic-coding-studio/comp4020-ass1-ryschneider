@@ -1,13 +1,10 @@
 import { orbitView } from "../lib/raster/camera";
-import { generateIcosphere } from "../lib/raster/icosphere";
 import type { Mat4 } from "../lib/raster/mat4";
 import { perspective } from "../lib/raster/mat4";
 import type { Light, Material } from "../lib/raster/shading";
 import { vec3 } from "../lib/raster/vec3";
 
 /** Shared defaults every stage starts from; each stage's controls override only what it teaches. */
-export const mesh = generateIcosphere(2);
-
 export const defaultMaterial: Material = {
   color: vec3(0.85, 0.35, 0.25),
   ambient: 0.12,
