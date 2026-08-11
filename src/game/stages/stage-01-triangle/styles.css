@@ -1,0 +1,32 @@
+/* Generic HUD primitives (.hud-panel, .stage-pip, .segmented, .pip-list, .index-list, .call-log,
+   .field-label) live in src/styles/global.css, owned by the stage manager. Only this stage's own
+   classes belong here. */
+
+.stage-01-hint {
+  margin: 0 0 0.75rem;
+  color: var(--fg-muted);
+  font-size: 0.9rem;
+}
+
+.stage-01-add-triangle,
+.stage-01-reset {
+  display: block;
+  width: 100%;
+  margin: 0.5rem 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--fg);
+  cursor: pointer;
+}
+
+.stage-01-add-triangle:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.stage-01-reset {
+  border-color: transparent;
+  color: var(--fg-muted);
+}

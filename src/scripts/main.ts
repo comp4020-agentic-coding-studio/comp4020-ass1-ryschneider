@@ -1,15 +1,14 @@
-import { init as initModel } from "./stages/model";
-import { init as initProjection } from "./stages/projection-stage";
-import { init as initRasterize } from "./stages/rasterize-stage";
-import { init as initShading } from "./stages/shading";
-import { init as initView } from "./stages/view";
-import { init as initWorld } from "./stages/world";
-import { initScrollController } from "./scroll-controller";
-import { initStageRail } from "./stage-rail";
+import { createStageManager } from "../game/stage-manager";
+import { STAGES } from "../game/stages";
 
-const stages = [initModel(), initWorld(), initView(), initProjection(), initRasterize(), initShading()].filter(
-  (stage) => stage !== null,
-);
+const canvas = document.getElementById("game-canvas");
+const nav = document.querySelector(".stage-progress");
+const hud = document.getElementById("hud");
+const nextButton = document.getElementById("next-stage-button");
 
-initScrollController(stages);
-initStageRail(["model", "world", "view", "projection", "rasterize", "shading"]);
+if (!(canvas instanceof HTMLCanvasElement)) throw new Error("#game-canvas is missing from the page");
+if (!(nav instanceof HTMLElement)) throw new Error(".stage-progress nav is missing from the page");
+if (!(hud instanceof HTMLElement)) throw new Error("#hud is missing from the page");
+if (!(nextButton instanceof HTMLButtonElement)) throw new Error("#next-stage-button is missing from the page");
+
+createStageManager({ canvas, nav, hud, nextButton }, STAGES).start();

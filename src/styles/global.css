@@ -12,27 +12,18 @@
   box-sizing: border-box;
 }
 
-html {
-  scroll-snap-type: y proximity;
-  scroll-behavior: smooth;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
 }
 
 body {
-  margin: 0;
   background: var(--bg);
   color: var(--fg);
   font-family: system-ui, sans-serif;
   line-height: 1.5;
-}
-
-a {
-  color: var(--accent);
 }
 
 .visually-hidden {
@@ -47,235 +38,202 @@ a {
   border: 0;
 }
 
-/* Dot rail: a real <nav> landmark, styled as a minimal fixed-position indicator rather than a
-   row of link text, so the page doesn't read as a website with a header. */
-.stage-rail {
-  position: fixed;
-  top: 50%;
-  right: 1rem;
-  z-index: 20;
-  display: flex;
-  flex-direction: column;
-  gap: 0.65rem;
-  transform: translateY(-50%);
-}
-
-.stage-rail a {
-  display: block;
-  width: 0.6rem;
-  height: 0.6rem;
-  border-radius: 999px;
-  background: var(--border);
-  transition:
-    background-color 0.2s ease,
-    transform 0.2s ease;
-}
-
-.stage-rail a:hover,
-.stage-rail a:focus-visible {
-  background: var(--fg-muted);
-}
-
-.stage-rail a[aria-current="true"] {
-  background: var(--accent);
-  transform: scale(1.5);
-}
-
-main {
-  display: block;
-}
-
-.title-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100svh;
-  padding: 2rem 1.5rem;
-  text-align: center;
-  scroll-snap-align: start;
-}
-
-.title-card h1 {
-  max-width: 40rem;
-  margin: 0;
-  font-size: clamp(2rem, 6vw, 3.5rem);
-}
-
-.title-card p {
-  max-width: 30rem;
-  margin: 1rem 0 0;
-  color: var(--fg-muted);
-  font-size: 1.1rem;
-}
-
-.title-card .scroll-hint {
-  margin-top: 2.5rem;
-  color: var(--fg-muted);
-  font-size: 0.8rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  animation: hint-bounce 1.6s ease-in-out infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .title-card .scroll-hint {
-    animation: none;
-  }
-}
-
-@keyframes hint-bounce {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(6px);
-  }
-}
-
-.stage {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100svh;
-  padding: 3rem 1.25rem;
-  scroll-snap-align: start;
-}
-
-.stage-canvas-wrap {
-  position: relative;
-  display: flex;
-  justify-content: center;
-}
-
-.stage-canvas {
-  width: min(85vmin, 720px);
-  height: min(85vmin, 720px);
-  aspect-ratio: 1 / 1;
-  background: var(--bg-panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-}
-
-.stage-canvas-pixelated {
-  image-rendering: pixelated;
-}
-
-.stage-inset {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  padding: 0.4rem;
-  background: rgb(20 23 29 / 88%);
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
-}
-
-.stage-inset-label {
-  margin: 0 0 0.3rem;
-  color: var(--fg-muted);
-  font-size: 0.6rem;
-  letter-spacing: 0.08em;
-  text-align: center;
-  text-transform: uppercase;
-}
-
-.stage-inset-canvas {
-  display: block;
-  width: 110px;
-  height: 110px;
-  background: #000;
-  border-radius: 0.35rem;
-}
-
-.stage-hud {
-  width: min(92vw, 30rem);
-  margin-top: 1.5rem;
-  padding: 1.1rem 1.4rem;
-  background: rgb(20 23 29 / 80%);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  text-align: left;
-}
-
-.stage-number {
-  margin: 0 0 0.25rem;
-  color: var(--accent);
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.stage-hud h2 {
-  margin: 0 0 0.5rem;
-  font-size: 1.25rem;
-}
-
-.stage-body p {
-  margin: 0 0 0.75rem;
-  color: var(--fg-muted);
-  font-size: 0.92rem;
-}
-
-.control {
-  margin: 0.9rem 0;
-}
-
-.control-range-header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.3rem;
-  font-size: 0.85rem;
-}
-
-.control-range input[type="range"] {
-  width: 100%;
-}
-
-.control-toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.control-toggle button {
-  cursor: pointer;
-  padding: 0.5rem 1rem;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--bg-panel);
-  color: var(--fg);
-  font: inherit;
-  transition:
-    background-color 0.15s ease,
-    color 0.15s ease;
-}
-
-.control-toggle button[aria-pressed="true"] {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--bg);
-}
-
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
-@media (width >= 60rem) {
-  .stage {
-    position: relative;
+/* Game shell: one fixed viewport, no page scroll — canvas fills it, HUD and header float on top. */
+.game-shell {
+  position: fixed;
+  inset: 0;
+}
+
+#game-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+.game-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+}
+
+.game-header h1 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.stage-progress {
+  display: flex;
+  gap: 0.4rem;
+}
+
+/* Shared "pip" primitive: nav-progress dots (stage-manager.ts) and vertex-selection chips
+   (individual stages) both use this class, so it's defined once here rather than per stage. */
+.stage-pip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.6rem;
+  height: 1.6rem;
+  padding: 0 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-panel);
+  color: var(--fg-muted);
+  font: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.stage-pip:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.stage-pip[aria-current="step"],
+.stage-pip[aria-pressed="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+/* Semi-transparent GUI overlay: a stage's HUD content lives inside .hud-panel, but the glass
+   background/positioning belongs to the shared .hud container so panels don't double-layer it. */
+.hud {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 10;
+  width: min(92vw, 22rem);
+  max-height: min(75vh, 40rem);
+  overflow-y: auto;
+  padding: 1rem 1.25rem;
+  background: rgb(20 23 29 / 78%);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.hud-panel h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+}
+
+.hud-panel h3 {
+  margin: 1rem 0 0.4rem;
+  font-size: 0.85rem;
+  color: var(--fg-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.hud-panel-error {
+  color: #fca5a5;
+}
+
+.field-label {
+  display: block;
+  margin: 0.75rem 0 0.35rem;
+  font-size: 0.8rem;
+  color: var(--fg-muted);
+}
+
+.segmented {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.segmented button {
+  flex: 1;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--bg-panel);
+  color: var(--fg);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.segmented button[aria-pressed="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+.pip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.4rem 0;
+}
+
+.index-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin: 0.4rem 0;
+  font-family: ui-monospace, monospace;
+  font-size: 0.78rem;
+  color: var(--fg-muted);
+}
+
+.call-log {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  max-height: 8rem;
+  overflow-y: auto;
+  padding: 0.5rem;
+  background: rgb(0 0 0 / 25%);
+  border-radius: 0.5rem;
+  font-family: ui-monospace, monospace;
+  font-size: 0.72rem;
+  color: var(--fg-muted);
+}
+
+.next-stage-button {
+  position: absolute;
+  left: 1rem;
+  bottom: 1rem;
+  z-index: 10;
+  padding: 0.65rem 1.1rem;
+  border: none;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--bg);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@media (width <= 30rem) {
+  .hud {
+    left: 0.5rem;
+    right: 0.5rem;
+    bottom: 0.5rem;
+    width: auto;
+    max-height: 50vh;
   }
 
-  .stage-hud {
-    position: absolute;
-    right: 3rem;
-    bottom: 3rem;
-    width: min(24rem, 30vw);
-    margin-top: 0;
+  .next-stage-button {
+    left: 0.5rem;
+    bottom: calc(50vh + 0.75rem);
   }
 }
