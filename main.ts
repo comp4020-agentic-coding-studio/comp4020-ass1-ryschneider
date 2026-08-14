@@ -1,5 +1,6 @@
 import { mountCanvasHost } from "./src/ui/canvas-host";
 import { mountPrimitiveFillToggles } from "./src/ui/controls/primitive-fill-toggles";
+import { mountProjectionControls } from "./src/ui/controls/projection-controls";
 import { mountVertexTable } from "./src/ui/controls/vertex-table";
 import { mountRenderLoop } from "./src/ui/render-loop";
 import { mountStagePanels } from "./src/ui/stage-panel";
@@ -16,3 +17,4 @@ mountRenderLoop(host, store);
 mountStagePanels(document, store);
 mountVertexTable(document, store);
 mountPrimitiveFillToggles(document, store);
+mountProjectionControls(document, store, host);

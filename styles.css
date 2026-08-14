@@ -94,6 +94,34 @@ a {
   gap: 0.4rem;
 }
 
+.matrix-mount {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.matrix-grid {
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.85rem;
+}
+
+.matrix-grid td {
+  padding: 0.2rem 0.5rem;
+  text-align: right;
+  border: 1px solid color-mix(in srgb, currentcolor 20%, transparent);
+  transition: background-color 0.4s ease;
+}
+
+.matrix-grid td.cell-changed {
+  background-color: color-mix(in srgb, #0b5fff 35%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .matrix-grid td {
+    transition: none;
+  }
+}
+
 .vertex-table-scroll {
   max-width: 100%;
   overflow-x: auto;

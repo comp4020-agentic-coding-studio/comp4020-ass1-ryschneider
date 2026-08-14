@@ -37,7 +37,8 @@ function deg2rad(deg: number): number {
   return (deg * Math.PI) / 180;
 }
 
-function buildModelMatrix(transform: MeshInstance["transform"]): Mat4 {
+/** Exported so stage 2-4's matrix-view panels can compute the same matrices renderScene uses, not a drifted copy. */
+export function buildModelMatrix(transform: MeshInstance["transform"]): Mat4 {
   const rotation = multiply(
     rotateZ(deg2rad(transform.rotateDeg.z)),
     multiply(rotateY(deg2rad(transform.rotateDeg.y)), rotateX(deg2rad(transform.rotateDeg.x))),
@@ -51,7 +52,7 @@ function buildModelMatrix(transform: MeshInstance["transform"]): Mat4 {
  * which is exactly when this reduces to the verified screen-space passthrough
  * (l=0, r=width, b=height, t=0).
  */
-function buildProjection(state: SceneState, width: number, height: number): Mat4 {
+export function buildProjection(state: SceneState, width: number, height: number): Mat4 {
   if (state.projectionKind === "perspective") {
     const { fovYDeg, near, far } = state.perspective;
     return perspective(deg2rad(fovYDeg), width / height, near, far);
