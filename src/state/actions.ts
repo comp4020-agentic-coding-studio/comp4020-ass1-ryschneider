@@ -197,9 +197,18 @@ export function setMeshTransform(store: Store, meshId: string, patch: Partial<Me
 
 // --- Stage 5: color / blend ---
 
+/**
+ * Paints every vertex of the mesh with `color`. Rendering always resolves a
+ * vertex's color from `vertexColors[i]` (never a bare `meshColor` fallback,
+ * since every mesh's `vertexColors` array is fully populated from creation)
+ * -- so a bulk "mesh color" edit has to overwrite `vertexColors` itself to be
+ * visible, not just the `meshColor` record.
+ */
 export function setMeshColor(store: Store, meshId: string, color: Vec3): void {
   store.update((state) => {
-    const meshes = state.meshes.map((m) => (m.id === meshId ? { ...m, meshColor: color } : m));
+    const meshes = state.meshes.map((m) =>
+      m.id === meshId ? { ...m, meshColor: color, vertexColors: m.vertexColors.map(() => color) } : m,
+    );
     return { ...state, meshes, ...withReveal(state, 6) };
   });
 }
