@@ -65,7 +65,8 @@ export function buildProjection(state: SceneState, width: number, height: number
   return orthographic(cx - halfWidth, cx + halfWidth, cy + halfHeight, cy - halfHeight, near, far);
 }
 
-function buildView(state: SceneState): Mat4 {
+/** Exported so stage 3's matrix-view panel can compute the same view matrix renderScene uses. */
+export function buildView(state: SceneState): Mat4 {
   if (!state.viewEngaged) return identity();
   return orbitView(deg2rad(state.view.azimuthDeg), deg2rad(state.view.elevationDeg), state.view.distance, state.view.target);
 }
