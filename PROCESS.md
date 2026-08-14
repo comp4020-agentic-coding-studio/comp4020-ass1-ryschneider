@@ -1,74 +1,76 @@
 # Process overview
 
-<!-- TEMPLATE: this file is a shape to fill in, not a form. Replace everything
-     in it with your own overview, and delete this comment — `pnpm
-     check:evidence` will remind you if it's still here. -->
-
-A reading-guide to how the work came together --- a map to your process, not an
-essay about it. Markers read this file and follow its citations; they don't
-trawl the repo for evidence you didn't point at, so if a moment mattered, cite
-it.
-
-This file is the shape; the course site's
-[assessment page](https://comp.anu.edu.au/courses/comp4020-agentic-coding-studio/topics/assessment/#what-you-submit)
-is the requirement, and each brief adds its own word count and moment count.
-
-## What I built
-
-One paragraph: the thing, and the idea behind it.
+I built a software rasterizer explainer: one persistent scene, one canvas,
+that stays live across seven accordion stages instead of six disconnected
+demos. Stage 1 renders a table of "vertices" straight to screen pixels; each
+later stage turns one more part of `screen = viewport(Projection * View *
+Model * vertex)` from an identity default into something you can drag, while
+every earlier control keeps acting on the same mesh(es) all the way to stage
+7's Phong lighting. The math (mat4/vec3/camera/rasterizer) is ported from an
+earlier prototype; the state machine, the seven stages, and the
+reveal/engagement ratchets that make "everything stays live" true are new.
 
 ## The moments that mattered
 
-Three or four for an assignment; fewer is fine for a weekly prototype. Keep the
-list short so each moment has room to do all four jobs:
+1. **Pinning the one fact the whole pipeline depends on, before building on
+   top of it.** Stage 1 claims a table vertex is rendered "directly to
+   pixels," but that's really an ordinary orthographic matrix
+   (`l=0,r=W,b=H,t=0`) whose swapped top/bottom cancels the Y-flip
+   `ndcToScreen` always applies — a detail that's easy to get backwards and
+   have "work" anyway for one test case. Rather than trust that by
+   inspection, I wrote the numeric pin first: a vertex at `(10, 20, 0)` must
+   land at screen pixel `(10, 20)` to float precision, committed alongside
+   the matrix it's exercising
+   ([`cbd172b`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-ryschneider/commit/cbd172b)).
+   Every later stage's default (identity model, identity view, canvas-matched
+   projection) is a statement that "this new matrix reduces to a no-op," and
+   this test is what made that statement checkable instead of assumed.
 
-1. **what happened** --- the problem, or the thing the agent got wrong
-2. **what you did instead of the obvious thing** --- the call you made, and why
-   it beat the obvious one
-3. **how you knew it was right** --- the check you ran, the viewport you looked
-   at, what you read before accepting the diff
-4. **the citation** --- a commit or commit range, a `CLAUDE.md` change, a check
-   that went from red to green, a prompt paired with the commit it produced
+2. **A screenshot said "uniform flat color everywhere," and the instinct was
+   to start editing `shading.ts`.** Before touching the lighting code I read
+   `pipeline.ts` and `shading.ts` end to end and the math was right — a fixed
+   light direction dot-producted against differently-rotated face normals
+   can't coincidentally produce one color across a whole cube and a
+   triangle. The actual cause was outside the code: a stale, never-reloaded
+   browser tab from earlier ad-hoc testing plus a camera angle that only
+   showed one dominant face. A fresh reload with a clearer oblique angle
+   showed correct, distinctly-shaded faces immediately. The check that
+   mattered wasn't a new test, it was refusing to trust a single
+   screenshot's "looks broken" over reading the math that produces it, and
+   then re-testing under controlled conditions before believing either
+   verdict.
 
-Jobs 2 and 3 are the ones the repo can't tell a reader on its own, so they're
-where the marks are. The strongest moments are the ones where a correction
-landed in the **harness** rather than in another prompt --- a rule added to
-`CLAUDE.md`, a check wired up, an attempt thrown away: re-prompting until it
-passes is the routine case, and changing what the agent works against is the
-skilled one.
+3. **Splitting one messy diff into three honest commits instead of one
+   "fix bugs" commit.** Chasing that shading question left `actions.ts` with
+   three unrelated fixes tangled together: pixel-scale near/far defaults,
+   newly-added meshes spawning invisibly at the world origin instead of the
+   camera's target, and a stage-5 "mesh color" control that only wrote a
+   record nobody read. Since I couldn't stage hunks interactively, I
+   reverted two of the three fixes with the Edit tool, committed the first
+   alone, then re-applied and committed each of the others in turn
+   ([`57418f3`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-ryschneider/commit/57418f3),
+   [`f7ff275`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-ryschneider/commit/f7ff275),
+   [`df2e9bc`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-ryschneider/commit/df2e9bc)).
+   The extra care was for the reader of the history, not the code: three
+   commits that each answer "what changed and why" beat one that requires
+   re-deriving three separate stories from a combined diff.
 
-Cite each moment as a link whose text is the commit hash or range and whose
-target is this repo's commit or compare URL, so a reader clicks straight to the
-evidence:
-
-- one commit: [`a1b2c3d`](https://github.com/YOUR-ORG/YOUR-REPO/commit/a1b2c3d)
-- a range:
-  [`a1b2c3d...e4f5a6b`](https://github.com/YOUR-ORG/YOUR-REPO/compare/a1b2c3d...e4f5a6b)
-
-To pair a prompt with the commit it produced, quote the prompt (curated, not a
-full transcript) next to the citation:
-
-> the prompt, verbatim
-
-Screenshots are welcome where one carries the verification better than a
-sentence does. Commit the file to this repo and link it with a **relative**
-path, which is what makes it render on GitHub: `![alt text](docs/before.png)`.
-Images don't count towards the word count and don't replace the citation.
-
-### A worked moment, for shape
-
-Delete this section along with the rest of the boilerplate --- it's here to show
-the four jobs in one paragraph, not to be imitated in content.
-
-> The date formatter kept coming back with `toLocaleDateString()` and no locale
-> argument, so the same build rendered differently on my machine and in CI. I'd
-> already re-prompted it twice, which fixed the line but not the habit, so the
-> third time I put the rule in `CLAUDE.md` instead
-> ([`3f9ac21`](https://github.com/YOUR-ORG/YOUR-REPO/commit/3f9ac21)) and added
-> a spec test that fails on a bare `toLocaleDateString`. That's what told me it
-> had actually taken: the test went red against the old code and green against
-> the new, and the next two features it wrote passed it without prompting
-> ([`3f9ac21...b7e0d14`](https://github.com/YOUR-ORG/YOUR-REPO/compare/3f9ac21...b7e0d14)).
+4. **A dead end the acceptance checklist wouldn't have caught.** Testing
+   resize-mid-interaction in a real browser, I clicked stage 2's Perspective
+   radio directly (not via the "load example" button) and the canvas went
+   solid black — no error, no test failure, nothing in `pnpm check`. Reading
+   `pipeline.ts`, the cause was structural: an identity view means the
+   camera coincides with the table's `z=0` vertices, so the perspective
+   divide (`w = -z`) hits exactly zero and every vertex fails the `clip.w <=
+   0` check. That's the same degeneracy the plan had already named for
+   `orbitView(0,0,0)` — perspective without a positioned camera has no
+   sensible default, same as an orbit camera with itself as its own target
+   — so the fix extends the existing view-engagement ratchet rather than
+   inventing a new mechanism: choosing perspective now engages the view with
+   its already-sensible defaults if it isn't engaged yet
+   ([`a95f2c4`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-ryschneider/commit/a95f2c4)).
+   Found by using the deployed-shaped artefact the way a grader would —
+   clicking a control in isolation — not by re-running the automated suite.
 
 ## Before you ship
 
