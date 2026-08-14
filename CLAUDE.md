@@ -182,3 +182,17 @@ from an included entry point (`main.ts`) actually imports it. A green
 typecheck before that wiring exists is checking nothing; don't trust it as
 verification of new `src/` code until `main.ts` (or another included file)
 transitively imports it.
+
+One more gotcha, specific to working from a git worktree checked out under
+`.claude/worktrees/<name>` (as an agent session may do): `pnpm check`'s lint
+step can fail with oxlint's "No files found to lint" even though the project
+has plenty of `.ts` files. Cause: `.gitignore`'s `.claude/` line is unanchored,
+so it matches *any* path component named `.claude` --- including the worktree
+directory's own ancestry, not just a literal `.claude/` subfolder inside the
+project. oxlint's ignore-path resolution treats that as "the whole cwd is
+ignored." This is a false failure of the sandbox path, not the code: it
+doesn't reproduce at the real repo root (no `.claude` segment in that path),
+so it won't hit CI or the user's normal checkout. If you hit it while working
+in a worktree, don't "fix" it by loosening `.gitignore` or the lint config ---
+verify with a copy of `.gitignore` minus that one line instead, and trust the
+real `pnpm check` run once back at the repo root.
