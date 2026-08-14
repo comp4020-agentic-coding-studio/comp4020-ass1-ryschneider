@@ -251,6 +251,12 @@ export function setLightingRate(store: Store, lightingRate: LightingRate): void 
   store.update((state) => ({ ...state, lightingRate, ...withReveal(state, 7) }));
 }
 
+/** Engages material like setMaterialParam does -- otherwise moving the light before touching ambient/diffuse is a no-op with no visible feedback. */
 export function setLightParam(store: Store, patch: Partial<SceneState["light"]>): void {
-  store.update((state) => ({ ...state, light: { ...state.light, ...patch } }));
+  store.update((state) => ({
+    ...state,
+    light: { ...state.light, ...patch },
+    material: { ...state.material, enabled: true },
+    ...withReveal(state, 7),
+  }));
 }
