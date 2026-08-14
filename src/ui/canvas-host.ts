@@ -1,3 +1,4 @@
+import { vec3 } from "../lib/raster/vec3";
 import type { Store } from "../state/store";
 
 export interface CanvasHost {
@@ -13,6 +14,11 @@ export interface CanvasHost {
  * canvas's CSS height, so the default projection stays the exact
  * screen-space passthrough as the canvas resizes (including on a phone
  * viewport, or a resize mid-interaction).
+ *
+ * `view.target` has no UI control of its own, so it's always kept at the
+ * canvas center here -- the same convention the orthographic box already
+ * uses -- so the orbit camera in stage 3 looks at the same pixel-space
+ * content the table actually renders into, instead of the world origin.
  */
 export function mountCanvasHost(canvas: HTMLCanvasElement, store: Store): CanvasHost {
   const ctx = canvas.getContext("2d");
@@ -29,12 +35,11 @@ export function mountCanvasHost(canvas: HTMLCanvasElement, store: Store): Canvas
       canvas.height = height;
     }
 
-    if (store.get().orthographic.autoFit) {
-      store.update((state) => ({
-        ...state,
-        orthographic: { ...state.orthographic, halfHeight: height / 2 },
-      }));
-    }
+    store.update((state) => ({
+      ...state,
+      orthographic: state.orthographic.autoFit ? { ...state.orthographic, halfHeight: height / 2 } : state.orthographic,
+      view: { ...state.view, target: vec3(width / 2, height / 2, 0) },
+    }));
   }
 
   resize();

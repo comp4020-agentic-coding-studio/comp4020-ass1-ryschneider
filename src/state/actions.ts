@@ -118,7 +118,7 @@ export function resetProjection(store: Store): void {
   store.update((state) => ({
     ...state,
     projectionKind: "orthographic",
-    perspective: { fovYDeg: 60, near: 0.1, far: 100 },
+    perspective: { fovYDeg: 60, near: 1, far: 5000 },
     orthographic: { halfHeight: state.orthographic.halfHeight, near: -1000, far: 1000, autoFit: true },
   }));
 }
@@ -127,7 +127,7 @@ export function loadPerspectiveExample(store: Store): void {
   store.update((state) => ({
     ...state,
     projectionKind: "perspective",
-    perspective: { fovYDeg: 60, near: 0.1, far: 100 },
+    perspective: { fovYDeg: 60, near: 1, far: 5000 },
     ...withReveal(state, 3),
   }));
 }

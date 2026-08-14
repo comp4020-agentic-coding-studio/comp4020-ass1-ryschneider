@@ -93,10 +93,14 @@ export function createInitialState(): SceneState {
     primitive: "triangles",
     fill: "solid",
     projectionKind: "orthographic",
-    perspective: { fovYDeg: 60, near: 0.1, far: 100 },
+    // near/far/distance are pixel-scale, matching the table's screen-space coordinates
+    // (canvas-host.ts keeps target synced to the canvas center, same convention as
+    // orthographic's canvas-matched box) -- unit-scale defaults would put the table
+    // outside the frustum the moment perspective + view are both engaged.
+    perspective: { fovYDeg: 60, near: 1, far: 5000 },
     orthographic: { halfHeight: 300, near: -1000, far: 1000, autoFit: true },
     viewEngaged: false,
-    view: { azimuthDeg: 0, elevationDeg: 20, distance: 3.2, target: vec3(0, 0, 0) },
+    view: { azimuthDeg: 0, elevationDeg: 20, distance: 600, target: vec3(0, 0, 0) },
     blend: "linear",
     baseColor: vec3(1, 1, 1),
     // specular starts at 0, a non-degenerate point on its own continuous slider (unlike
