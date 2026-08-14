@@ -27,6 +27,10 @@ function withReveal(state: SceneState, stageNumber: number): Pick<SceneState, "p
   return { progress: { revealed: revealStage(state.progress.revealed, stageNumber) } };
 }
 
+function withReveals(state: SceneState, ...stageNumbers: number[]): Pick<SceneState, "progress"> {
+  return { progress: { revealed: stageNumbers.reduce(revealStage, state.progress.revealed) } };
+}
+
 function recomputeTableMesh(state: SceneState): MeshInstance {
   const table = state.meshes[0];
   if (!table) throw new Error("actions: meshes[0] (the stage-1 table) is missing");
@@ -94,7 +98,20 @@ export function setFillMode(store: Store, fill: FillMode): void {
 // --- Stage 2: projection ---
 
 export function setProjectionKind(store: Store, projectionKind: ProjectionKind): void {
-  store.update((state) => ({ ...state, projectionKind, ...withReveal(state, 3) }));
+  store.update((state) => {
+    // Perspective with an identity view is as degenerate as orbitView(0,0,0) -- the
+    // eye coincides with the z=0 table/mesh vertices, so the perspective divide (w = -z)
+    // hits zero and every vertex drops behind the near plane, i.e. a silent black canvas.
+    // Engaging view here (its defaults are already sensible) keeps "switch to perspective"
+    // a working default instead of a dead end, mirroring stage 3's own engagement ratchet.
+    const engageView = projectionKind === "perspective" && !state.viewEngaged;
+    return {
+      ...state,
+      projectionKind,
+      viewEngaged: state.viewEngaged || engageView,
+      ...withReveals(state, 3, ...(engageView ? [4] : [])),
+    };
+  });
 }
 
 export function setPerspectiveParam(store: Store, patch: Partial<SceneState["perspective"]>): void {
@@ -128,7 +145,8 @@ export function loadPerspectiveExample(store: Store): void {
     ...state,
     projectionKind: "perspective",
     perspective: { fovYDeg: 60, near: 1, far: 5000 },
-    ...withReveal(state, 3),
+    viewEngaged: true,
+    ...withReveals(state, 3, 4),
   }));
 }
 
