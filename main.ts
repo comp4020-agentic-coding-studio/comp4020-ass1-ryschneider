@@ -1,8 +1,18 @@
-// Your prototype's TypeScript goes here. This file exists so the lint
-// sensor has something to check from day one. If the week's spec rules out
-// JavaScript, delete this file and the script tag in index.html — the site
-// you ship has to meet the spec, not the template's defaults.
-const intro = document.querySelector<HTMLElement>('[data-testid="intro"]');
-if (intro) {
-  intro.dataset.ready = "true";
-}
+import { mountCanvasHost } from "./src/ui/canvas-host";
+import { mountPrimitiveFillToggles } from "./src/ui/controls/primitive-fill-toggles";
+import { mountVertexTable } from "./src/ui/controls/vertex-table";
+import { mountRenderLoop } from "./src/ui/render-loop";
+import { mountStagePanels } from "./src/ui/stage-panel";
+import { createInitialState } from "./src/state/scene";
+import { createStore } from "./src/state/store";
+
+const store = createStore(createInitialState());
+
+const canvas = document.querySelector<HTMLCanvasElement>("#scene-canvas");
+if (!canvas) throw new Error("main: #scene-canvas not found");
+
+const host = mountCanvasHost(canvas, store);
+mountRenderLoop(host, store);
+mountStagePanels(document, store);
+mountVertexTable(document, store);
+mountPrimitiveFillToggles(document, store);

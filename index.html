@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>COMP4020 prototype</title>
+    <title>Build a rasterizer</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -12,12 +12,163 @@
         <a href="./">Home</a>
       </nav>
     </header>
-    <main>
-      <h1>COMP4020 prototype</h1>
-      <p data-testid="intro">
-        Replace this with your prototype. This week's brief is on the course website;
-        <code>spec/README.md</code> explains how the checks in this repo relate to it.
+    <main class="app-shell">
+      <h1>Build a rasterizer, one matrix at a time</h1>
+      <p class="intro">
+        Every vertex on screen is the output of one formula:
+        <code>screen = viewport(Projection &times; View &times; Model &times; vertex)</code>. Each stage below
+        turns one more part of that formula from an identity default into something you can edit &mdash; and every
+        earlier control keeps working as you go.
       </p>
+
+      <div class="stage-view">
+        <canvas id="scene-canvas" aria-label="Rendered scene"></canvas>
+        <p class="canvas-caption" data-testid="canvas-caption">Stage 1: vertices rendered directly to pixels.</p>
+      </div>
+
+      <aside class="stage-panels" aria-label="Stages">
+        <section class="stage" data-stage="1">
+          <details data-stage-details="1" open>
+            <summary>Stage 1 &mdash; Screen space</summary>
+            <div class="stage-body" data-mount="stage1">
+              <div class="vertex-table-scroll">
+                <table data-testid="vertex-table">
+                  <caption>Vertex table (screen-space pixels)</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">x</th>
+                      <th scope="col">y</th>
+                      <th scope="col">z</th>
+                      <th scope="col"><span class="visually-hidden">Remove</span></th>
+                    </tr>
+                  </thead>
+                  <tbody data-vertex-rows></tbody>
+                </table>
+              </div>
+              <button type="button" data-action="add-row">Add vertex</button>
+
+              <fieldset>
+                <legend>Primitive mode</legend>
+                <label><input type="radio" name="primitive" value="points" /> Points</label>
+                <label><input type="radio" name="primitive" value="lines" /> Lines</label>
+                <label><input type="radio" name="primitive" value="triangles" checked /> Triangles</label>
+              </fieldset>
+
+              <fieldset>
+                <legend>Fill mode</legend>
+                <label><input type="radio" name="fill" value="solid" checked /> Solid</label>
+                <label><input type="radio" name="fill" value="wireframe" /> Wireframe</label>
+              </fieldset>
+            </div>
+          </details>
+        </section>
+
+        <section class="stage" data-stage="2" hidden>
+          <details data-stage-details="2">
+            <summary>Stage 2 &mdash; Projection matrix</summary>
+            <div class="stage-body" data-mount="stage2">
+              <fieldset>
+                <legend>Projection</legend>
+                <label><input type="radio" name="projection-kind" value="orthographic" checked /> Orthographic</label>
+                <label><input type="radio" name="projection-kind" value="perspective" /> Perspective</label>
+              </fieldset>
+              <label>Field of view (Y)<input type="range" data-field="fovYDeg" min="10" max="150" value="60" /></label>
+              <label>Near<input type="range" data-field="near" min="0.01" max="10" step="0.01" value="0.1" /></label>
+              <label>Far<input type="range" data-field="far" min="10" max="2000" value="100" /></label>
+              <label>Half-height (ortho zoom)<input type="range" data-field="halfHeight" min="20" max="2000" value="300" /></label>
+              <button type="button" data-action="reset-projection">Reset</button>
+              <button type="button" data-action="load-perspective-example">Load perspective example</button>
+              <div class="matrix-mount" data-mount="stage2-matrix"></div>
+            </div>
+          </details>
+        </section>
+
+        <section class="stage" data-stage="3" hidden>
+          <details data-stage-details="3">
+            <summary>Stage 3 &mdash; View matrix</summary>
+            <div class="stage-body" data-mount="stage3">
+              <p class="engage-indicator" data-testid="view-engage-indicator">Camera: not yet engaged (identity view)</p>
+              <label>Azimuth<input type="range" data-field="azimuthDeg" min="-180" max="180" value="0" /></label>
+              <label>Elevation<input type="range" data-field="elevationDeg" min="-89" max="89" value="20" /></label>
+              <label>Distance<input type="range" data-field="distance" min="0.5" max="20" step="0.1" value="3.2" /></label>
+              <div class="matrix-mount" data-mount="stage3-matrix"></div>
+              <div class="frustum-mount" data-mount="stage3-frustum"></div>
+            </div>
+          </details>
+        </section>
+
+        <section class="stage" data-stage="4" hidden>
+          <details data-stage-details="4">
+            <summary>Stage 4 &mdash; Model matrix &amp; meshes</summary>
+            <div class="stage-body" data-mount="stage4">
+              <label>
+                Add a mesh
+                <select data-field="mesh-kind">
+                  <option value="cube">Cube</option>
+                  <option value="pyramid">Pyramid</option>
+                  <option value="plane">Plane</option>
+                </select>
+              </label>
+              <button type="button" data-action="add-mesh">Add</button>
+              <ul class="mesh-list" data-mount="mesh-list"></ul>
+
+              <label>Translate X<input type="range" data-field="translateX" min="-5" max="5" step="0.1" value="0" /></label>
+              <label>Translate Y<input type="range" data-field="translateY" min="-5" max="5" step="0.1" value="0" /></label>
+              <label>Translate Z<input type="range" data-field="translateZ" min="-5" max="5" step="0.1" value="0" /></label>
+              <label>Rotate X<input type="range" data-field="rotateX" min="-180" max="180" value="0" /></label>
+              <label>Rotate Y<input type="range" data-field="rotateY" min="-180" max="180" value="0" /></label>
+              <label>Rotate Z<input type="range" data-field="rotateZ" min="-180" max="180" value="0" /></label>
+              <label>Scale X<input type="range" data-field="scaleX" min="0.1" max="4" step="0.1" value="1" /></label>
+              <label>Scale Y<input type="range" data-field="scaleY" min="0.1" max="4" step="0.1" value="1" /></label>
+              <label>Scale Z<input type="range" data-field="scaleZ" min="0.1" max="4" step="0.1" value="1" /></label>
+              <div class="matrix-mount" data-mount="stage4-matrix"></div>
+            </div>
+          </details>
+        </section>
+
+        <section class="stage" data-stage="5" hidden>
+          <details data-stage-details="5">
+            <summary>Stage 5 &mdash; Color &amp; blending</summary>
+            <div class="stage-body" data-mount="stage5">
+              <label>Mesh color<input type="color" data-field="mesh-color" value="#ffffff" /></label>
+              <ul class="vertex-color-list" data-mount="vertex-colors"></ul>
+              <fieldset>
+                <legend>Blend</legend>
+                <label><input type="radio" name="blend" value="flat" /> Flat</label>
+                <label><input type="radio" name="blend" value="linear" checked /> Linear</label>
+              </fieldset>
+            </div>
+          </details>
+        </section>
+
+        <section class="stage" data-stage="6" hidden>
+          <details data-stage-details="6">
+            <summary>Stage 6 &mdash; Ambient &amp; diffuse lighting</summary>
+            <div class="stage-body" data-mount="stage6">
+              <p class="engage-indicator" data-testid="material-engage-indicator">Lighting: off (raw vertex colors)</p>
+              <label>Ambient<input type="range" data-field="ambient" min="0" max="1" step="0.01" value="0.3" /></label>
+              <label>Diffuse<input type="range" data-field="diffuse" min="0" max="1" step="0.01" value="0.7" /></label>
+              <label>Light azimuth<input type="range" data-field="lightAzimuthDeg" min="-180" max="180" value="-45" /></label>
+              <label>Light elevation<input type="range" data-field="lightElevationDeg" min="-89" max="89" value="45" /></label>
+              <fieldset>
+                <legend>Lighting rate</legend>
+                <label><input type="radio" name="lighting-rate" value="perVertex" checked /> Per-vertex (Gouraud)</label>
+                <label><input type="radio" name="lighting-rate" value="perPixel" /> Per-pixel (Phong)</label>
+              </fieldset>
+            </div>
+          </details>
+        </section>
+
+        <section class="stage" data-stage="7" hidden>
+          <details data-stage-details="7">
+            <summary>Stage 7 &mdash; Specular lighting</summary>
+            <div class="stage-body" data-mount="stage7">
+              <label>Specular<input type="range" data-field="specular" min="0" max="1" step="0.01" value="0" /></label>
+              <label>Shininess<input type="range" data-field="shininess" min="1" max="128" value="32" /></label>
+            </div>
+          </details>
+        </section>
+      </aside>
     </main>
     <script type="module" src="./main.ts"></script>
   </body>

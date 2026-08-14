@@ -1,16 +1,173 @@
-body {
-  margin: 0;
-  padding: 2rem;
-  font-family: system-ui, sans-serif;
-  line-height: 1.6;
-  color: #1a1a1a;
+:root {
+  color-scheme: light dark;
 }
 
-main {
-  max-width: 40rem;
-  margin: 0 auto;
+body {
+  margin: 0;
+  padding: 0 1rem 2rem;
+  font-family: system-ui, sans-serif;
+  line-height: 1.5;
+}
+
+header {
+  padding: 1rem;
 }
 
 a {
   color: #0b5fff;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.app-shell {
+  max-width: 90rem;
+  margin: 0 auto;
+}
+
+.intro {
+  max-width: 60rem;
+}
+
+.intro code {
+  white-space: normal;
+}
+
+.stage-view {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+#scene-canvas {
+  width: 100%;
+  max-width: 100%;
+  height: min(60vh, 480px);
+  background: #18181c;
+  border-radius: 0.5rem;
+}
+
+.canvas-caption {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.stage-panels {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.stage summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0.5rem 0;
+}
+
+.stage-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.5rem 0 1rem;
+}
+
+.stage-body fieldset {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  border-radius: 0.375rem;
+}
+
+.stage-body label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.vertex-table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+table[data-testid="vertex-table"] {
+  border-collapse: collapse;
+}
+
+table[data-testid="vertex-table"] th,
+table[data-testid="vertex-table"] td {
+  padding: 0.25rem 0.5rem;
+}
+
+table[data-testid="vertex-table"] input[type="number"] {
+  width: 5rem;
+}
+
+@media (width < 480px) {
+  table[data-testid="vertex-table"] th,
+  table[data-testid="vertex-table"] td {
+    padding: 0.25rem 0.3rem;
+  }
+
+  table[data-testid="vertex-table"] input[type="number"] {
+    width: 3.4rem;
+  }
+}
+
+.mesh-list,
+.vertex-color-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.engage-indicator {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+@media (width >= 768px) {
+  main.app-shell {
+    display: grid;
+    grid-template-columns: 1fr 22rem;
+    grid-template-areas:
+      "heading heading"
+      "intro   intro"
+      "canvas  panels";
+    column-gap: 2rem;
+  }
+
+  main.app-shell > h1 {
+    grid-area: heading;
+  }
+
+  main.app-shell > .intro {
+    grid-area: intro;
+  }
+
+  main.app-shell > .stage-view {
+    grid-area: canvas;
+  }
+
+  main.app-shell > .stage-panels {
+    grid-area: panels;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  #scene-canvas {
+    height: min(70vh, 640px);
+  }
 }
