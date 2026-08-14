@@ -160,3 +160,25 @@ catching you out, a fact about the stack the agent keeps getting wrong --- write
 it down here. Growing this file is the work of harness engineering, and the gap
 between this boilerplate and your own version is part of what your prototype
 says about the developer you're becoming.
+
+## Working practice: batch checks, don't reflexively re-run `pnpm check`
+
+`pnpm check` (typecheck + build + lint + spec) is the most expensive thing
+available in this loop, and most single edits don't need it. Make a cluster of
+related changes for one stage/commit, then run one full check covering all of
+them, and when multiple independent checks are genuinely needed (a unit test
+run and a browser check, say) fire them in parallel rather than sequentially.
+Between checkpoints, rely on conversation context --- what was just changed,
+what already passed, what the diff actually touches --- instead of
+re-verifying reflexively. But never skip verification before an actual commit,
+and never let "rely on context" substitute for actually checking something
+whose correctness isn't already established: new math, a changed sign or
+convention, anything touching the identity-passthrough recipe this prototype's
+stage 1 depends on.
+
+Note also: `tsconfig.json`'s `include` only pulls in root-level `.ts` files and
+`spec/` --- `tsc --noEmit` only typechecks `src/**` once something reachable
+from an included entry point (`main.ts`) actually imports it. A green
+typecheck before that wiring exists is checking nothing; don't trust it as
+verification of new `src/` code until `main.ts` (or another included file)
+transitively imports it.
