@@ -1,5 +1,6 @@
 import { mountCanvasHost } from "./src/ui/canvas-host";
 import { mountPrimitiveFillToggles } from "./src/ui/controls/primitive-fill-toggles";
+import { mountMeshList } from "./src/ui/controls/mesh-list";
 import { mountProjectionControls } from "./src/ui/controls/projection-controls";
 import { mountVertexTable } from "./src/ui/controls/vertex-table";
 import { mountViewControls } from "./src/ui/controls/view-controls";
@@ -20,3 +21,4 @@ mountVertexTable(document, store);
 mountPrimitiveFillToggles(document, store);
 mountProjectionControls(document, store, host);
 mountViewControls(document, store);
+mountMeshList(document, store);
