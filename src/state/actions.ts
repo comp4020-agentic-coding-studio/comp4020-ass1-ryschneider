@@ -162,7 +162,11 @@ export function addMesh(store: Store, kind: keyof typeof EXAMPLE_MESHES): void {
       indices: built.indices,
       vertexColors: built.positions.map(() => vec3(1, 1, 1)),
       meshColor: vec3(1, 1, 1),
-      transform: identityTransform(),
+      // Spawn at the current view target rather than the world origin --
+      // `lookAt` guarantees that point is centered in the camera's frustum,
+      // so a freshly-added mesh is always visible regardless of where the
+      // camera has been orbited to.
+      transform: { ...identityTransform(), translate: state.view.target },
     };
     return { ...state, meshes: [...state.meshes, instance], activeMeshId: instance.id, ...withReveal(state, 5) };
   });
