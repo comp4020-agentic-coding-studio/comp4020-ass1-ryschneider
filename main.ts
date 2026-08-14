@@ -1,5 +1,6 @@
 import { mountCanvasHost } from "./src/ui/canvas-host";
 import { mountColorControls } from "./src/ui/controls/color-controls";
+import { mountLightingControls } from "./src/ui/controls/lighting-controls";
 import { mountPrimitiveFillToggles } from "./src/ui/controls/primitive-fill-toggles";
 import { mountMeshList } from "./src/ui/controls/mesh-list";
 import { mountProjectionControls } from "./src/ui/controls/projection-controls";
@@ -24,3 +25,4 @@ mountProjectionControls(document, store, host);
 mountViewControls(document, store);
 mountMeshList(document, store);
 mountColorControls(document, store);
+mountLightingControls(document, store);

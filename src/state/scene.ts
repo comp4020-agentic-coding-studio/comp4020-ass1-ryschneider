@@ -99,7 +99,10 @@ export function createInitialState(): SceneState {
     view: { azimuthDeg: 0, elevationDeg: 20, distance: 3.2, target: vec3(0, 0, 0) },
     blend: "linear",
     baseColor: vec3(1, 1, 1),
-    material: { ambient: 0.3, diffuse: 0.7, specular: 0.5, shininess: 32, enabled: false },
+    // specular starts at 0, a non-degenerate point on its own continuous slider (unlike
+    // orbit view's eye-coincides-with-target singularity), so stage 6's ambient+diffuse-
+    // only regime shows no highlight until the user actually drags stage 7's slider up.
+    material: { ambient: 0.3, diffuse: 0.7, specular: 0, shininess: 32, enabled: false },
     light: { azimuthDeg: -45, elevationDeg: 45, color: vec3(1, 1, 1) },
     lightingRate: "perVertex",
     progress: { revealed: [true, false, false, false, false, false, false] },

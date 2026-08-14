@@ -234,13 +234,6 @@ export function setMaterialParam(store: Store, patch: Partial<SceneState["materi
   }));
 }
 
-export function engageSpecular(store: Store): void {
-  store.update((state) => ({
-    ...state,
-    material: { ...state.material, enabled: true, specular: state.material.specular || 0.5 },
-  }));
-}
-
 export function setLightingRate(store: Store, lightingRate: LightingRate): void {
   store.update((state) => ({ ...state, lightingRate, ...withReveal(state, 7) }));
 }
