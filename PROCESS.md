@@ -89,6 +89,25 @@ reveal/engagement ratchets that make "everything stays live" true are new.
    write or get wrong
    ([`cee4516`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-ryschneider/commit/cee4516)).
 
+6. **A test failure that pointed past the code it was written to check.** A
+   later feedback round asked for a "fit everything into view" button, which
+   needs the camera to look at an arbitrary point far from the origin. The
+   new tests for it failed with wildly out-of-range NDC z values even though
+   a debug dump showed the button's own near/far/distance arithmetic matched
+   my hand-derived expectations exactly. Reading `camera.ts` instead of
+   re-deriving the arithmetic again turned up the actual bug one layer down:
+   `orbitEye` always orbited the world origin, never `view.target`, so
+   `distance` only ever approximated the true eye-to-target separation for
+   the near-origin targets every prior feature happened to use. Confirming
+   the fix was safe meant reading `camera.test.ts` before touching
+   `camera.ts` -- neither existing test asserted anything about eye position
+   relative to a non-origin target, so orbiting around `target` instead of
+   the origin was a correctness fix, not a breaking change
+   ([`5e5db50`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-ryschneider/commit/5e5db50)).
+   Two passing new tests would have been easy to trust; it was the failing
+   ones, and refusing to stop at "the formula looks right," that found a bug
+   no prior stage's manual testing had ever exercised.
+
 ## Before you ship
 
 `pnpm check:evidence` verifies your citations resolve to real commits, that the
