@@ -142,7 +142,7 @@ export function setProjectionKind(store: Store, projectionKind: ProjectionKind):
       ...state,
       projectionKind,
       viewEngaged: state.viewEngaged || engageView,
-      ...withReveals(state, 3, ...(engageView ? [4] : [])),
+      ...withReveal(state, 3),
     };
   });
 }
