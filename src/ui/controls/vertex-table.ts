@@ -4,12 +4,15 @@ import type { Store } from "../../state/store";
 
 const ADD_LABEL = "Add vertex";
 const PLACING_LABEL = "Click to place";
+const FINISH_LABEL = "Finish placing vertices";
 
 /**
  * Renders `state.tableRows` into the `data-vertex-rows` tbody and wires edits
  * back to actions.ts. "Add vertex" arms placement mode (crosshair cursor over
- * the canvas) rather than adding at a fixed point; the next canvas click adds
- * a vertex at that normalized 0..1 position and disarms.
+ * the canvas) rather than adding at a fixed point; each canvas click adds a
+ * vertex at that normalized 0..1 position without disarming, so multiple
+ * vertices can be placed in a row. Placement ends by re-clicking the button
+ * or pressing Escape.
  */
 export function mountVertexTable(root: ParentNode, store: Store): void {
   const tbodyEl = root.querySelector<HTMLTableSectionElement>("[data-vertex-rows]");
@@ -21,11 +24,17 @@ export function mountVertexTable(root: ParentNode, store: Store): void {
   const canvas: HTMLCanvasElement = canvasEl;
 
   let placing = false;
+  let placedAnyThisSession = false;
+
+  function updateAddButtonLabel(): void {
+    addButton.textContent = !placing ? ADD_LABEL : placedAnyThisSession ? FINISH_LABEL : PLACING_LABEL;
+  }
 
   function setPlacing(value: boolean): void {
     placing = value;
+    if (placing) placedAnyThisSession = false;
     addButton.setAttribute("aria-pressed", String(placing));
-    addButton.textContent = placing ? PLACING_LABEL : ADD_LABEL;
+    updateAddButtonLabel();
     canvas.style.cursor = placing ? "crosshair" : "";
     if (!placing) clearPreviewVertex(store);
   }
@@ -43,7 +52,8 @@ export function mountVertexTable(root: ParentNode, store: Store): void {
     if (!placing) return;
     const { x, y } = normalizedPosition(event);
     addTableRowAt(store, x, y);
-    setPlacing(false);
+    placedAnyThisSession = true;
+    updateAddButtonLabel();
   });
 
   // While armed, the in-progress vertex tracks the pointer so the user sees
