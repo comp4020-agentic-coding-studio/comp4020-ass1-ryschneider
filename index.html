@@ -124,35 +124,31 @@
               <button type="button" data-action="add-mesh">Add</button>
               <ul class="mesh-list" data-mount="mesh-list"></ul>
 
-              <fieldset>
-                <legend>
-                  Translate
+              <div class="transform-grid" data-mount="stage4-transform">
+                <p>
+                  Position
                   <span class="hint-icon" tabindex="0" title="Position offset along each axis">?</span>
-                </legend>
+                </p>
                 <label>X<input type="number" step="0.05" data-field="translateX" value="0" /></label>
                 <label>Y<input type="number" step="0.05" data-field="translateY" value="0" /></label>
                 <label>Z<input type="number" step="0.05" data-field="translateZ" value="0" /></label>
-              </fieldset>
 
-              <fieldset>
-                <legend>
-                  Rotate
+                <p>
+                  Rotation
                   <span class="hint-icon" tabindex="0" title="Rotation around each axis, in degrees">?</span>
-                </legend>
+                </p>
                 <label>X<input type="number" step="1" data-field="rotateX" value="0" /></label>
                 <label>Y<input type="number" step="1" data-field="rotateY" value="0" /></label>
                 <label>Z<input type="number" step="1" data-field="rotateZ" value="0" /></label>
-              </fieldset>
 
-              <fieldset>
-                <legend>
+                <p>
                   Scale
                   <span class="hint-icon" tabindex="0" title="Scale factor along each axis (1 = unchanged)">?</span>
-                </legend>
+                </p>
                 <label>X<input type="number" step="0.1" data-field="scaleX" value="1" /></label>
                 <label>Y<input type="number" step="0.1" data-field="scaleY" value="1" /></label>
                 <label>Z<input type="number" step="0.1" data-field="scaleZ" value="1" /></label>
-              </fieldset>
+              </div>
 
               <div class="matrix-mount" data-mount="stage4-matrix"></div>
             </div>
