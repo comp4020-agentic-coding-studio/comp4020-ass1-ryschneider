@@ -8,17 +8,13 @@ import { createInitialState } from "../src/state/scene";
 describe("stage 2: projection matrix", () => {
   it("defaults to the canvas-matched orthographic passthrough", () => {
     const state = createInitialState();
-    const width = 720;
-    const height = 400;
-    state.orthographic.halfHeight = height / 2;
 
-    const projection = buildProjection(state, width, height);
+    const projection = buildProjection(state);
 
-    // A vertex at the exact canvas center should map to clip-space origin.
-    const cx = width / 2;
-    const cy = height / 2;
-    const clipX = projection[0] * cx + projection[12];
-    const clipY = projection[5] * cy + projection[13];
+    // The box is always centered at normalized (0.5, 0.5), regardless of
+    // aspect ratio, so a vertex there should map to clip-space origin.
+    const clipX = projection[0] * 0.5 + projection[12];
+    const clipY = projection[5] * 0.5 + projection[13];
     expect(clipX).toBeCloseTo(0, 5);
     expect(clipY).toBeCloseTo(0, 5);
   });
@@ -28,7 +24,7 @@ describe("stage 2: projection matrix", () => {
     state.projectionKind = "perspective";
     state.perspective = { fovYDeg: 60, near: 0.1, far: 100 };
 
-    const projection = buildProjection(state, 800, 600);
+    const projection = buildProjection(state);
 
     // Perspective matrices carry a -1 in row 3, col 2 (index 11) to divide by -z; orthographic never does.
     expect(projection[11]).toBeCloseTo(-1, 5);

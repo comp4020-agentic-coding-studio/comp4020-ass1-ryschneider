@@ -7,18 +7,22 @@ import { renderScene } from "../src/lib/raster/pipeline";
 import { createInitialState } from "../src/state/scene";
 
 describe("stage 1: identity passthrough", () => {
-  it("renders a table vertex at its exact screen-space pixel", () => {
+  it("renders a normalized table vertex at its exact screen-space pixel", () => {
     const state = createInitialState();
     const width = 720;
     const height = 400;
-    state.orthographic.halfHeight = height / 2;
+    // A square aspect ratio makes the canvas-matched orthographic box exactly
+    // the unit square [0,1]x[0,1] -- the case where a normalized (nx, ny)
+    // vertex maps to the exact pixel (round(nx*width), round(ny*height)),
+    // independent of width/height individually.
+    state.aspectRatio = 1;
 
     const fb = createFramebuffer(width, height);
     renderScene(state, fb, [0, 0, 0]);
 
     const [row] = state.tableRows;
-    const x = Math.round(row.x);
-    const y = Math.round(row.y);
+    const x = Math.round(row.x * width);
+    const y = Math.round(row.y * height);
     const i = (y * width + x) * 4;
 
     expect([fb.color[i], fb.color[i + 1], fb.color[i + 2]]).toEqual([255, 255, 255]);

@@ -10,7 +10,7 @@ import type { MeshInstance } from "../src/state/scene";
 
 /** One flat triangle with a distinct color at each vertex, so blend mode is the only variable. */
 function triColorTriangle(): MeshInstance {
-  const positions = [vec3(0, 0, 0), vec3(50, 0, 0), vec3(25, 50, 0)];
+  const positions = [vec3(0, 0, 0), vec3(0.125, 0, 0), vec3(0.0625, 0.125, 0)];
   return {
     id: "tri",
     label: "tri",
@@ -29,7 +29,7 @@ describe("stage 5: color & blending", () => {
     const state = createInitialState();
     state.material.enabled = false;
     state.blend = "flat";
-    state.orthographic.halfHeight = 200;
+    state.aspectRatio = 1;
     state.meshes = [triColorTriangle()];
 
     const fb = createFramebuffer(400, 400);
@@ -45,7 +45,7 @@ describe("stage 5: color & blending", () => {
     const state = createInitialState();
     state.material.enabled = false;
     state.blend = "linear";
-    state.orthographic.halfHeight = 200;
+    state.aspectRatio = 1;
     state.meshes = [triColorTriangle()];
 
     const fb = createFramebuffer(400, 400);

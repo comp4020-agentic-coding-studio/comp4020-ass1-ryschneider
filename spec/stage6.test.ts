@@ -16,7 +16,7 @@ function deg2rad(deg: number): number {
 
 /** One flat, uniformly-colored triangle, small and near the canvas origin like stage4/5's test meshes. */
 function flatTriangle(normal: Vec3, color: Vec3): MeshInstance {
-  const positions = [vec3(0, 0, -5), vec3(50, 0, -5), vec3(25, 50, -5)];
+  const positions = [vec3(0, 0, -0.0125), vec3(0.125, 0, -0.0125), vec3(0.0625, 0.125, -0.0125)];
   return {
     id: "tri",
     label: "tri",
@@ -41,7 +41,7 @@ describe("stage 6: ambient & diffuse lighting", () => {
   it("material.enabled=false shows the raw vertex color, ignoring the light entirely", () => {
     const state = createInitialState();
     state.material.enabled = false;
-    state.orthographic.halfHeight = 200;
+    state.aspectRatio = 1;
     state.meshes = [flatTriangle(vec3(0, 0, 1), vec3(1, 0, 0))];
 
     expect(samplePixel(state)).toEqual([255, 0, 0]);
@@ -50,7 +50,7 @@ describe("stage 6: ambient & diffuse lighting", () => {
   it("ambient alone lights a surface uniformly, independent of the light's direction", () => {
     const base = createInitialState();
     base.material = { ambient: 0.4, diffuse: 0, specular: 0, shininess: 32, enabled: true };
-    base.orthographic.halfHeight = 200;
+    base.aspectRatio = 1;
     const mesh = flatTriangle(vec3(0, 0, 1), vec3(1, 1, 1));
 
     const stateA: SceneState = {
@@ -76,8 +76,8 @@ describe("stage 6: ambient & diffuse lighting", () => {
     // The light sits far enough away (base.light.distance) that its direction barely varies across
     // the small triangle below, so one representative surface point stands in for all three vertices.
     const lightPos = orbitEye(deg2rad(base.light.azimuthDeg), deg2rad(base.light.elevationDeg), base.light.distance);
-    const lightDir = normalize(sub(lightPos, vec3(25, 50 / 3, -5)));
-    base.orthographic.halfHeight = 200;
+    const lightDir = normalize(sub(lightPos, vec3(25 / 400, 50 / 3 / 400, -5 / 400)));
+    base.aspectRatio = 1;
     const mesh = flatTriangle(lightDir, vec3(1, 1, 1));
 
     const dim: SceneState = { ...base, material: { ambient: 0.1, diffuse: 0.2, specular: 0, shininess: 32, enabled: true }, meshes: [mesh] };

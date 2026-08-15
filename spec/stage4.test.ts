@@ -23,17 +23,20 @@ function triangleMesh(id: string, positions: ReturnType<typeof vec3>[], z: numbe
   };
 }
 
-/** One triangle big enough to cover the whole framebuffer used in the occlusion test below. */
+/** One triangle big enough to cover the whole normalized [0,1]x[0,1] box used in the occlusion test below. */
 function bigTriangle(id: string, z: number, color: [number, number, number]): MeshInstance {
-  return triangleMesh(id, [vec3(-1000, -1000, 0), vec3(1000, -1000, 0), vec3(0, 1000, 0)], z, color);
+  return triangleMesh(id, [vec3(-10, -10, 0), vec3(10, -10, 0), vec3(0, 10, 0)], z, color);
 }
 
 describe("stage 4: multi-mesh rendering", () => {
   it("two meshes at different translations render distinguishably", () => {
     const state = createInitialState();
-    state.orthographic.halfHeight = 200;
-    const left = triangleMesh("left", [vec3(0, 0, 0), vec3(50, 0, 0), vec3(25, 50, 0)], 0, [1, 0, 0]);
-    const right = triangleMesh("right", [vec3(300, 0, 0), vec3(350, 0, 0), vec3(325, 50, 0)], 0, [0, 0, 1]);
+    // Square aspect ratio matches the square 400x400 framebuffer below, so the
+    // canvas-matched box is exactly [0,1]x[0,1] and a normalized (nx, ny)
+    // mesh vertex lands at pixel (nx*400, ny*400).
+    state.aspectRatio = 1;
+    const left = triangleMesh("left", [vec3(0, 0, 0), vec3(0.125, 0, 0), vec3(0.0625, 0.125, 0)], 0, [1, 0, 0]);
+    const right = triangleMesh("right", [vec3(0.75, 0, 0), vec3(0.875, 0, 0), vec3(0.8125, 0.125, 0)], 0, [0, 0, 1]);
     state.meshes = [left, right];
 
     const fb = createFramebuffer(400, 400);
@@ -47,7 +50,7 @@ describe("stage 4: multi-mesh rendering", () => {
 
   it("occludes correctly via the z-test regardless of draw order", () => {
     const state = createInitialState();
-    state.orthographic.halfHeight = 200;
+    state.aspectRatio = 1;
     const near = bigTriangle("near", -3, [1, 0, 0]);
     const far = bigTriangle("far", 3, [0, 0, 1]);
 

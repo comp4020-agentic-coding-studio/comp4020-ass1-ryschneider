@@ -29,11 +29,11 @@ function flatTriangle(id: string, positions: Vec3[], normal: Vec3): MeshInstance
 }
 
 /**
- * Both triangles sit ~280 world units from the origin (the camera, since
- * view stays identity) so their per-vertex viewDir barely varies across a
- * few world units of spread -- letting one shared half-vector, computed
- * from a single reference point, stand in for "the" half-vector each
- * triangle's own vertices resolve to.
+ * Both triangles sit ~0.7 world units from the origin (the camera, since
+ * view stays identity) so their per-vertex viewDir barely varies across
+ * their small spread -- letting one shared half-vector, computed from a
+ * single reference point, stand in for "the" half-vector each triangle's
+ * own vertices resolve to.
  */
 describe("stage 7: specular highlight is spatially localized", () => {
   it("raising specular changes a face aligned with the light/view half-vector, but not one merely facing the light", () => {
@@ -42,10 +42,11 @@ describe("stage 7: specular highlight is spatially localized", () => {
     state.material.diffuse = 0.6;
     state.material.shininess = 32;
     state.material.enabled = true;
-    state.light = { azimuthDeg: 20, elevationDeg: 30, distance: 5000, color: vec3(1, 1, 1) };
-    state.orthographic.halfHeight = 4;
+    state.light = { azimuthDeg: 20, elevationDeg: 30, distance: 5000 / 400, color: vec3(1, 1, 1) };
+    state.aspectRatio = 1;
+    state.orthographic.halfHeight = 4 / 400;
 
-    const reference = vec3(198, 198, -5);
+    const reference = vec3(198 / 400, 198 / 400, -5 / 400);
     const lightPos = orbitEye(deg2rad(state.light.azimuthDeg), deg2rad(state.light.elevationDeg), state.light.distance);
     const lightDir = normalize(sub(lightPos, reference));
     const viewDir = normalize(scale(reference, -1));
@@ -54,14 +55,14 @@ describe("stage 7: specular highlight is spatially localized", () => {
     // "hot": normal == the half-vector, so dot(n,h) = 1 -> maximal specular response.
     const hot = flatTriangle(
       "hot",
-      [vec3(197, 197, -5), vec3(199, 197, -5), vec3(198, 199, -5)],
+      [vec3(197 / 400, 197 / 400, -5 / 400), vec3(199 / 400, 197 / 400, -5 / 400), vec3(198 / 400, 199 / 400, -5 / 400)],
       halfVec,
     );
     // "cold": normal == the light direction, so it's fully diffuse-lit (dot(n,l)=1),
     // but dot(n,h) is well below 1 -- raised to shininess 32 that's negligible.
     const cold = flatTriangle(
       "cold",
-      [vec3(201, 197, -5), vec3(203, 197, -5), vec3(202, 199, -5)],
+      [vec3(201 / 400, 197 / 400, -5 / 400), vec3(203 / 400, 197 / 400, -5 / 400), vec3(202 / 400, 199 / 400, -5 / 400)],
       lightDir,
     );
     state.meshes = [hot, cold];
