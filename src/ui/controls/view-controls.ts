@@ -25,10 +25,16 @@ export function mountViewControls(root: ParentNode, store: Store): void {
   const distanceInput: HTMLInputElement = distanceInputEl;
   const indicator: HTMLElement = indicatorEl;
 
-  const azimuthField = bindRangeField(azimuthInput, { hint: "Camera orbit azimuth", formatValue: (v) => `${v}°` });
-  const elevationField = bindRangeField(elevationInput, { hint: "Camera orbit elevation", formatValue: (v) => `${v}°` });
+  const azimuthField = bindRangeField(azimuthInput, {
+    hint: "Rotates the camera left/right around the target, like walking in a circle around it",
+    formatValue: (v) => `${v}°`,
+  });
+  const elevationField = bindRangeField(elevationInput, {
+    hint: "Tilts the camera up/down around the target — 0° is eye-level, 90° is looking straight down",
+    formatValue: (v) => `${v}°`,
+  });
   const distanceField = bindRangeField(distanceInput, {
-    hint: "Camera distance from the target",
+    hint: "How far the camera sits from the target; together with azimuth/elevation this builds the View matrix",
     formatValue: (v) => v.toFixed(2),
   });
 
