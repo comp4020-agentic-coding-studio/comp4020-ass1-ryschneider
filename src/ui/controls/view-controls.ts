@@ -1,5 +1,5 @@
 import { buildView } from "../../lib/raster/pipeline";
-import { setViewParam } from "../../state/actions";
+import { setDragToRotate, setViewParam } from "../../state/actions";
 import type { Store } from "../../state/store";
 import { mountMatrixView } from "../matrix-view";
 import { bindRangeField } from "./range-field";
@@ -14,15 +14,17 @@ export function mountViewControls(root: ParentNode, store: Store): void {
   const azimuthInputEl = root.querySelector<HTMLInputElement>('[data-field="azimuthDeg"]');
   const elevationInputEl = root.querySelector<HTMLInputElement>('[data-field="elevationDeg"]');
   const distanceInputEl = root.querySelector<HTMLInputElement>('[data-field="distance"]');
+  const dragToRotateInputEl = root.querySelector<HTMLInputElement>('[data-field="drag-to-rotate"]');
   const indicatorEl = root.querySelector<HTMLElement>('[data-testid="view-engage-indicator"]');
   const matrixMount = root.querySelector<HTMLElement>('[data-mount="stage3-matrix"]');
 
-  if (!azimuthInputEl || !elevationInputEl || !distanceInputEl || !indicatorEl) {
+  if (!azimuthInputEl || !elevationInputEl || !distanceInputEl || !dragToRotateInputEl || !indicatorEl) {
     throw new Error("view-controls: expected markup not found");
   }
   const azimuthInput: HTMLInputElement = azimuthInputEl;
   const elevationInput: HTMLInputElement = elevationInputEl;
   const distanceInput: HTMLInputElement = distanceInputEl;
+  const dragToRotateInput: HTMLInputElement = dragToRotateInputEl;
   const indicator: HTMLElement = indicatorEl;
 
   const azimuthField = bindRangeField(azimuthInput, {
@@ -41,6 +43,7 @@ export function mountViewControls(root: ParentNode, store: Store): void {
   azimuthInput.addEventListener("input", () => setViewParam(store, { azimuthDeg: Number(azimuthInput.value) }));
   elevationInput.addEventListener("input", () => setViewParam(store, { elevationDeg: Number(elevationInput.value) }));
   distanceInput.addEventListener("input", () => setViewParam(store, { distance: Number(distanceInput.value) }));
+  dragToRotateInput.addEventListener("change", () => setDragToRotate(store, dragToRotateInput.checked));
 
   function render(): void {
     const state = store.get();
@@ -50,6 +53,7 @@ export function mountViewControls(root: ParentNode, store: Store): void {
     elevationField.sync(state.view.elevationDeg);
     if (document.activeElement !== distanceInput) distanceInput.value = String(state.view.distance);
     distanceField.sync(state.view.distance);
+    dragToRotateInput.checked = state.controls.dragToRotate;
     indicator.textContent = state.viewEngaged
       ? "Camera: engaged (orbiting the origin)"
       : "Camera: not yet engaged (identity view)";
