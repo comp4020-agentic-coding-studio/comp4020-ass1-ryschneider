@@ -1,6 +1,7 @@
 import { setLightParam, setLightingRate, setMaterialParam } from "../../state/actions";
 import type { LightingRate } from "../../state/scene";
 import type { Store } from "../../state/store";
+import { bindRangeField } from "./range-field";
 
 /** Wires stage 6 (ambient/diffuse, light position, per-vertex/per-pixel rate) and stage 7 (specular/shininess). */
 export function mountLightingControls(root: ParentNode, store: Store): void {
@@ -29,6 +30,17 @@ export function mountLightingControls(root: ParentNode, store: Store): void {
   const specular: HTMLInputElement = specularInput;
   const shininess: HTMLInputElement = shininessInput;
 
+  const ambientField = bindRangeField(ambient, { hint: "Ambient light contribution", formatValue: (v) => v.toFixed(2) });
+  const diffuseField = bindRangeField(diffuse, { hint: "Diffuse light contribution", formatValue: (v) => v.toFixed(2) });
+  const lightAzimuthField = bindRangeField(lightAzimuth, { hint: "Light azimuth", formatValue: (v) => `${v}°` });
+  const lightElevationField = bindRangeField(lightElevation, { hint: "Light elevation", formatValue: (v) => `${v}°` });
+  const lightDistanceField = bindRangeField(lightDistance, {
+    hint: "Distance of the light from the origin",
+    formatValue: (v) => v.toFixed(0),
+  });
+  const specularField = bindRangeField(specular, { hint: "Specular light contribution", formatValue: (v) => v.toFixed(2) });
+  const shininessField = bindRangeField(shininess, { hint: "Specular highlight tightness", formatValue: (v) => v.toFixed(0) });
+
   ambient.addEventListener("input", () => setMaterialParam(store, { ambient: Number(ambient.value) }));
   diffuse.addEventListener("input", () => setMaterialParam(store, { diffuse: Number(diffuse.value) }));
   lightAzimuth.addEventListener("input", () => setLightParam(store, { azimuthDeg: Number(lightAzimuth.value) }));
@@ -46,12 +58,19 @@ export function mountLightingControls(root: ParentNode, store: Store): void {
   function render(): void {
     const { material, light, lightingRate } = store.get();
     if (document.activeElement !== ambient) ambient.value = String(material.ambient);
+    ambientField.sync(material.ambient);
     if (document.activeElement !== diffuse) diffuse.value = String(material.diffuse);
+    diffuseField.sync(material.diffuse);
     if (document.activeElement !== lightAzimuth) lightAzimuth.value = String(light.azimuthDeg);
+    lightAzimuthField.sync(light.azimuthDeg);
     if (document.activeElement !== lightElevation) lightElevation.value = String(light.elevationDeg);
+    lightElevationField.sync(light.elevationDeg);
     if (document.activeElement !== lightDistance) lightDistance.value = String(light.distance);
+    lightDistanceField.sync(light.distance);
     if (document.activeElement !== specular) specular.value = String(material.specular);
+    specularField.sync(material.specular);
     if (document.activeElement !== shininess) shininess.value = String(material.shininess);
+    shininessField.sync(material.shininess);
     for (const input of rateInputs) input.checked = input.value === lightingRate;
     indicator.textContent = material.enabled
       ? "Lighting: on (ambient + diffuse" + (material.specular > 0 ? " + specular" : "") + ")"

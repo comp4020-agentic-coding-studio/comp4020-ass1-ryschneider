@@ -2,6 +2,7 @@ import { buildView } from "../../lib/raster/pipeline";
 import { setViewParam } from "../../state/actions";
 import type { Store } from "../../state/store";
 import { mountMatrixView } from "../matrix-view";
+import { bindRangeField } from "./range-field";
 
 /**
  * Wires stage 3's orbit-camera sliders. Any interaction snaps `viewEngaged`
@@ -24,6 +25,13 @@ export function mountViewControls(root: ParentNode, store: Store): void {
   const distanceInput: HTMLInputElement = distanceInputEl;
   const indicator: HTMLElement = indicatorEl;
 
+  const azimuthField = bindRangeField(azimuthInput, { hint: "Camera orbit azimuth", formatValue: (v) => `${v}°` });
+  const elevationField = bindRangeField(elevationInput, { hint: "Camera orbit elevation", formatValue: (v) => `${v}°` });
+  const distanceField = bindRangeField(distanceInput, {
+    hint: "Camera distance from the target",
+    formatValue: (v) => v.toFixed(2),
+  });
+
   azimuthInput.addEventListener("input", () => setViewParam(store, { azimuthDeg: Number(azimuthInput.value) }));
   elevationInput.addEventListener("input", () => setViewParam(store, { elevationDeg: Number(elevationInput.value) }));
   distanceInput.addEventListener("input", () => setViewParam(store, { distance: Number(distanceInput.value) }));
@@ -31,8 +39,11 @@ export function mountViewControls(root: ParentNode, store: Store): void {
   function render(): void {
     const state = store.get();
     if (document.activeElement !== azimuthInput) azimuthInput.value = String(state.view.azimuthDeg);
+    azimuthField.sync(state.view.azimuthDeg);
     if (document.activeElement !== elevationInput) elevationInput.value = String(state.view.elevationDeg);
+    elevationField.sync(state.view.elevationDeg);
     if (document.activeElement !== distanceInput) distanceInput.value = String(state.view.distance);
+    distanceField.sync(state.view.distance);
     indicator.textContent = state.viewEngaged
       ? "Camera: engaged (orbiting the origin)"
       : "Camera: not yet engaged (identity view)";

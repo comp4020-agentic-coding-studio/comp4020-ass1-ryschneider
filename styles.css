@@ -124,6 +124,23 @@ main.app-shell > h1 {
   gap: 0.4rem;
 }
 
+.stage-body label:has(input[type="range"]) {
+  flex-wrap: wrap;
+}
+
+.stage-body input[type="range"] {
+  flex: 1 1 8rem;
+  min-width: 6rem;
+}
+
+.range-field-output {
+  min-width: 3.5rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
 .matrix-mount {
   max-width: 100%;
   overflow-x: auto;

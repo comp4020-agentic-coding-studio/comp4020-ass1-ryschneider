@@ -4,6 +4,7 @@ import { addMesh, removeMesh, setActiveMesh, setMeshTransform } from "../../stat
 import type { MeshInstance } from "../../state/scene";
 import type { Store } from "../../state/store";
 import { mountMatrixView } from "../matrix-view";
+import { bindRangeField } from "./range-field";
 
 type TransformField =
   | "translateX"
@@ -72,6 +73,16 @@ function fieldValue(mesh: MeshInstance, field: TransformField): number {
   }
 }
 
+function transformFieldOptions(field: TransformField): { hint: string; formatValue: (v: number) => string } {
+  if (field.startsWith("translate")) {
+    return { hint: `Translate along ${field.slice(-1)}`, formatValue: (v) => v.toFixed(2) };
+  }
+  if (field.startsWith("rotate")) {
+    return { hint: `Rotate around the ${field.slice(-1)} axis`, formatValue: (v) => `${v}°` };
+  }
+  return { hint: `Scale along ${field.slice(-1)}`, formatValue: (v) => `${v.toFixed(2)}×` };
+}
+
 const TRANSFORM_FIELDS: TransformField[] = [
   "translateX",
   "translateY",
@@ -108,7 +119,9 @@ export function mountMeshList(root: ParentNode, store: Store): void {
     addMesh(store, kind);
   });
 
+  const transformFields = new Map<TransformField, { sync: (value: number) => void }>();
   for (const [field, input] of transformInputs) {
+    transformFields.set(field, bindRangeField(input, transformFieldOptions(field)));
     input.addEventListener("input", () => applyTransformField(store, field, Number(input.value)));
   }
 
@@ -139,7 +152,9 @@ export function mountMeshList(root: ParentNode, store: Store): void {
 
     const mesh = activeMesh(store);
     for (const [field, input] of transformInputs) {
-      if (document.activeElement !== input) input.value = String(fieldValue(mesh, field));
+      const value = fieldValue(mesh, field);
+      if (document.activeElement !== input) input.value = String(value);
+      transformFields.get(field)?.sync(value);
     }
   }
 

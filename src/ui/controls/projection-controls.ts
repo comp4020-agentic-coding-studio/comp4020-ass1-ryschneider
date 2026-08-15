@@ -3,6 +3,7 @@ import { loadPerspectiveExample, resetProjection, setOrthoParam, setPerspectiveP
 import type { ProjectionKind } from "../../state/scene";
 import type { Store } from "../../state/store";
 import { mountMatrixView } from "../matrix-view";
+import { bindRangeField } from "./range-field";
 
 /** Wires stage 2's projection controls (kind toggle, fov/near/far/halfHeight, reset, preset) and its matrix-view mount. */
 export function mountProjectionControls(root: ParentNode, store: Store): void {
@@ -22,6 +23,14 @@ export function mountProjectionControls(root: ParentNode, store: Store): void {
   const nearInput: HTMLInputElement = nearInputEl;
   const farInput: HTMLInputElement = farInputEl;
   const halfHeightInput: HTMLInputElement = halfHeightInputEl;
+
+  const fovField = bindRangeField(fovInput, { hint: "Vertical field of view", formatValue: (v) => `${v}°` });
+  const nearField = bindRangeField(nearInput, { hint: "Near clip plane distance", formatValue: (v) => v.toFixed(3) });
+  const farField = bindRangeField(farInput, { hint: "Far clip plane distance", formatValue: (v) => v.toFixed(1) });
+  const halfHeightField = bindRangeField(halfHeightInput, {
+    hint: "Half-height of the orthographic view box",
+    formatValue: (v) => v.toFixed(2),
+  });
 
   for (const input of kindInputs) {
     input.addEventListener("change", () => {
@@ -53,12 +62,18 @@ export function mountProjectionControls(root: ParentNode, store: Store): void {
     for (const input of kindInputs) input.checked = input.value === state.projectionKind;
 
     fovInput.value = String(state.perspective.fovYDeg);
+    fovField.sync(state.perspective.fovYDeg);
     halfHeightInput.value = String(state.orthographic.halfHeight);
+    halfHeightField.sync(state.orthographic.halfHeight);
     if (document.activeElement !== nearInput) {
-      nearInput.value = String(state.projectionKind === "perspective" ? state.perspective.near : state.orthographic.near);
+      const near = state.projectionKind === "perspective" ? state.perspective.near : state.orthographic.near;
+      nearInput.value = String(near);
+      nearField.sync(near);
     }
     if (document.activeElement !== farInput) {
-      farInput.value = String(state.projectionKind === "perspective" ? state.perspective.far : state.orthographic.far);
+      const far = state.projectionKind === "perspective" ? state.perspective.far : state.orthographic.far;
+      farInput.value = String(far);
+      farField.sync(far);
     }
   }
 
