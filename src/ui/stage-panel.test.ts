@@ -57,4 +57,22 @@ describe("mountStagePanels: strict accordion", () => {
     expect(stage2Section.hidden).toBe(false);
     expect(stage2Details.open).toBe(false);
   });
+
+  it("adds the stage-revealed class (which drives the fade-in animation) once a stage is revealed", () => {
+    const dom = new JSDOM(`<main>${stageMarkup(1)}${stageMarkup(2)}</main>`);
+    const { document } = dom.window;
+    const root = document.querySelector("main") as ParentNode;
+    const state = createInitialState();
+    state.progress.revealed = [true, false];
+    const store = createStore(state);
+    mountStagePanels(root, store);
+
+    const stage1Section = document.querySelector<HTMLElement>('section[data-stage="1"]')!;
+    const stage2Section = document.querySelector<HTMLElement>('section[data-stage="2"]')!;
+    expect(stage1Section.classList.contains("stage-revealed")).toBe(true);
+    expect(stage2Section.classList.contains("stage-revealed")).toBe(false);
+
+    store.update((s) => ({ ...s, progress: { revealed: [true, true] } }));
+    expect(stage2Section.classList.contains("stage-revealed")).toBe(true);
+  });
 });

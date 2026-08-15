@@ -31,7 +31,9 @@ export function mountStagePanels(root: ParentNode, store: Store): void {
     for (const section of sections) {
       const stageNumber = Number(section.dataset.stage);
       const index = stageNumber - 1;
-      section.hidden = !(revealed[index] ?? false);
+      const isRevealed = revealed[index] ?? false;
+      section.hidden = !isRevealed;
+      if (isRevealed) section.classList.add("stage-revealed");
     }
   }
 
