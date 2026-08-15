@@ -1,6 +1,6 @@
 import { buildProjection } from "../../lib/raster/pipeline";
 import {
-  loadPerspectiveExample,
+  fitEverythingIntoView,
   resetProjection,
   setDragToRotate,
   setOrthoParam,
@@ -24,7 +24,7 @@ export function mountProjectionControls(root: ParentNode, store: Store): void {
   const farInputEl = root.querySelector<HTMLInputElement>('[data-field="far"]');
   const halfHeightInputEl = root.querySelector<HTMLInputElement>('[data-field="halfHeight"]');
   const resetButton = root.querySelector<HTMLButtonElement>('[data-action="reset-projection"]');
-  const presetButton = root.querySelector<HTMLButtonElement>('[data-action="load-perspective-example"]');
+  const presetButton = root.querySelector<HTMLButtonElement>('[data-action="fit-view"]');
   const dragToRotateInputEl = root.querySelector<HTMLInputElement>('[data-field="drag-to-rotate"]');
   const scrollToZoomInputEl = root.querySelector<HTMLInputElement>('[data-field="scroll-to-zoom"]');
   const matrixMount = root.querySelector<HTMLElement>('[data-mount="stage2-matrix"]');
@@ -73,7 +73,7 @@ export function mountProjectionControls(root: ParentNode, store: Store): void {
   halfHeightInput.addEventListener("input", () => setOrthoParam(store, { halfHeight: Number(halfHeightInput.value) }));
 
   resetButton.addEventListener("click", () => resetProjection(store));
-  presetButton.addEventListener("click", () => loadPerspectiveExample(store));
+  presetButton.addEventListener("click", () => fitEverythingIntoView(store));
 
   dragToRotateInput.addEventListener("change", () => setDragToRotate(store, dragToRotateInput.checked));
   scrollToZoomInput.addEventListener("change", () => setScrollToZoom(store, scrollToZoomInput.checked));

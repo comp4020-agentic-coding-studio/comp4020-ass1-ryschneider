@@ -1,4 +1,5 @@
 import { EXAMPLE_MESHES } from "../lib/raster/meshes";
+import { computeSceneBounds, deg2rad } from "../lib/raster/pipeline";
 import { vec3 } from "../lib/raster/vec3";
 import type { Vec3 } from "../lib/raster/vec3";
 import type {
@@ -172,14 +173,50 @@ export function resetProjection(store: Store): void {
   }));
 }
 
-export function loadPerspectiveExample(store: Store): void {
-  store.update((state) => ({
-    ...state,
-    projectionKind: "perspective",
-    perspective: { fovYDeg: 60, near: 0.01, far: 10 },
-    viewEngaged: true,
-    ...withReveals(state, 3, 4),
-  }));
+const ORTHO_HALF_HEIGHT_BOUNDS = { min: 0.05, max: 5 }; // matches the halfHeight slider
+const VIEW_DISTANCE_BOUNDS = { min: 0.25, max: 15 }; // matches the distance slider
+const FIT_PADDING = 1.2;
+
+function clamp(v: number, { min, max }: { min: number; max: number }): number {
+  return Math.min(max, Math.max(min, v));
+}
+
+/**
+ * Frames every current mesh in view, in whichever projection is active
+ * (orthographic or perspective) -- keeps `projectionKind` and the camera's
+ * azimuth/elevation as they are, only deriving `view.target`/`view.distance`
+ * (and the relevant projection's near/far or halfHeight) from content.
+ * Engages the view unconditionally: `buildView` returns identity while
+ * `!viewEngaged`, so target/distance would otherwise have no effect.
+ */
+export function fitEverythingIntoView(store: Store): void {
+  store.update((state) => {
+    const { center, radius } = computeSceneBounds(state);
+    const paddedRadius = radius * FIT_PADDING;
+
+    if (state.projectionKind === "orthographic") {
+      const halfHeight = clamp(paddedRadius / Math.min(1, state.aspectRatio), ORTHO_HALF_HEIGHT_BOUNDS);
+      const distance = clamp(paddedRadius * 2, VIEW_DISTANCE_BOUNDS);
+      return {
+        ...state,
+        viewEngaged: true,
+        view: { ...state.view, target: center, distance },
+        orthographic: { ...state.orthographic, halfHeight, near: -(distance + paddedRadius), far: distance + paddedRadius, autoFit: false },
+        ...withReveals(state, 3, 4),
+      };
+    }
+
+    const verticalHalf = deg2rad(state.perspective.fovYDeg) / 2;
+    const horizontalHalf = Math.atan(Math.tan(verticalHalf) * state.aspectRatio);
+    const distance = clamp(paddedRadius / Math.sin(Math.min(verticalHalf, horizontalHalf)), VIEW_DISTANCE_BOUNDS);
+    return {
+      ...state,
+      viewEngaged: true,
+      view: { ...state.view, target: center, distance },
+      perspective: { ...state.perspective, far: clamp(distance + paddedRadius, { min: state.perspective.near, max: 20 }) },
+      ...withReveals(state, 3, 4),
+    };
+  });
 }
 
 // --- Stage 3: view ---

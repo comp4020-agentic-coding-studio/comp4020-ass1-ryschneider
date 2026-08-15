@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { addTableRowAt, clearPreviewVertex, setPreviewVertex, setPrimitiveMode } from "./actions";
+import { addTableRowAt, clearPreviewVertex, fitEverythingIntoView, setPreviewVertex, setPrimitiveMode, setProjectionKind } from "./actions";
 import { createInitialState } from "./scene";
 import { createStore } from "./store";
+import { buildProjection, buildView } from "../lib/raster/pipeline";
+import { multiply, transformPoint } from "../lib/raster/mat4";
+import { toNdc } from "../lib/raster/projection";
+import { vec3 } from "../lib/raster/vec3";
 
 describe("addTableRowAt", () => {
   it("rounds placed coordinates to 4 decimal places", () => {
@@ -52,5 +56,65 @@ describe("setPreviewVertex / clearPreviewVertex", () => {
 
     addTableRowAt(store, 0.25, 0.5);
     expect(store.get().progress.revealed[1]).toBe(true);
+  });
+});
+
+describe("fitEverythingIntoView", () => {
+  function withOffCenterMesh(store: ReturnType<typeof createStore>): void {
+    store.update((state) => ({
+      ...state,
+      meshes: [
+        {
+          ...state.meshes[0]!,
+          positions: [vec3(9, 19, 29), vec3(11, 21, 31)],
+          normals: [vec3(0, 0, 1), vec3(0, 0, 1)],
+          indices: [],
+          vertexColors: [vec3(1, 1, 1), vec3(1, 1, 1)],
+        },
+      ],
+    }));
+  }
+
+  it("frames an off-center mesh in orthographic mode: its extreme corners land within [-1, 1] NDC x/y", () => {
+    const store = createStore(createInitialState());
+    withOffCenterMesh(store);
+
+    fitEverythingIntoView(store);
+
+    const state = store.get();
+    expect(state.viewEngaged).toBe(true);
+    expect(state.projectionKind).toBe("orthographic");
+
+    const viewProjection = multiply(buildProjection(state), buildView(state));
+    for (const corner of [vec3(9, 19, 29), vec3(11, 21, 31)]) {
+      const ndc = toNdc(transformPoint(viewProjection, corner));
+      expect(Math.abs(ndc.x)).toBeLessThanOrEqual(1);
+      expect(Math.abs(ndc.y)).toBeLessThanOrEqual(1);
+      expect(ndc.z).toBeGreaterThanOrEqual(-1);
+      expect(ndc.z).toBeLessThanOrEqual(1);
+    }
+  });
+
+  it("frames the same off-center mesh in perspective mode", () => {
+    const store = createStore(createInitialState());
+    setProjectionKind(store, "perspective");
+    withOffCenterMesh(store);
+
+    fitEverythingIntoView(store);
+
+    const state = store.get();
+    expect(state.viewEngaged).toBe(true);
+    expect(state.projectionKind).toBe("perspective");
+
+    const viewProjection = multiply(buildProjection(state), buildView(state));
+    for (const corner of [vec3(9, 19, 29), vec3(11, 21, 31)]) {
+      const clip = transformPoint(viewProjection, corner);
+      expect(clip.w).toBeGreaterThan(0);
+      const ndc = toNdc(clip);
+      expect(Math.abs(ndc.x)).toBeLessThanOrEqual(1);
+      expect(Math.abs(ndc.y)).toBeLessThanOrEqual(1);
+      expect(ndc.z).toBeGreaterThanOrEqual(-1);
+      expect(ndc.z).toBeLessThanOrEqual(1);
+    }
   });
 });
