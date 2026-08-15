@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { createFramebuffer } from "./framebuffer";
-import { renderScene } from "./pipeline";
+import { buildProjection, renderScene, screenFractionToWorldXY } from "./pipeline";
+import { ndcToScreen } from "./screen";
+import { toNdc } from "./projection";
+import { transformPoint } from "./mat4";
 import { vec3 } from "./vec3";
 import { createInitialState, tableRowsToMeshFields } from "../../state/scene";
 
@@ -58,5 +61,74 @@ describe("renderScene", () => {
     const cy = Math.round((rows.reduce((sum, r) => sum + r.y, 0) / rows.length) * fb.height);
     const index = (cy * fb.width + cx) * 4;
     expect(fb.color[index]).toBe(0);
+  });
+
+  it("culls a vertex whose NDC z falls outside [-1, 1] instead of drawing it regardless of near/far", () => {
+    const state = createInitialState();
+    state.aspectRatio = 1;
+    state.primitive = "points";
+    // orthographic near/far default to [-10, 10]; a vertex at z=-20 (view-space,
+    // since the view is un-engaged/identity) is well beyond far and must be culled.
+    state.meshes[0] = {
+      ...state.meshes[0]!,
+      positions: [vec3(0.5, 0.5, -20)],
+      normals: [vec3(0, 0, 1)],
+      indices: [],
+      vertexColors: [vec3(1, 1, 1)],
+    };
+    const fb = createFramebuffer(100, 100);
+
+    renderScene(state, fb, [0, 0, 0]);
+
+    const index = (50 * fb.width + 50) * 4;
+    expect(fb.color[index]).toBe(0);
+  });
+
+  it("draws a vertex whose NDC z falls inside [-1, 1]", () => {
+    const state = createInitialState();
+    state.aspectRatio = 1;
+    state.primitive = "points";
+    state.meshes[0] = {
+      ...state.meshes[0]!,
+      positions: [vec3(0.5, 0.5, 0)],
+      normals: [vec3(0, 0, 1)],
+      indices: [],
+      vertexColors: [vec3(1, 1, 1)],
+    };
+    const fb = createFramebuffer(100, 100);
+
+    renderScene(state, fb, [0, 0, 0]);
+
+    const index = (50 * fb.width + 50) * 4;
+    expect(fb.color[index]).toBe(255);
+  });
+});
+
+describe("screenFractionToWorldXY", () => {
+  it("round-trips through buildProjection + ndcToScreen at a non-square aspect ratio", () => {
+    const state = createInitialState();
+    state.aspectRatio = 16 / 9;
+    const width = 1600;
+    const height = 900;
+    const xFraction = 0.85;
+    const yFraction = 0.2;
+
+    const { x, y } = screenFractionToWorldXY(state, xFraction, yFraction);
+    const clip = transformPoint(buildProjection(state), vec3(x, y, 0));
+    const ndc = toNdc(clip);
+    const screen = ndcToScreen(ndc, width, height);
+
+    expect(screen.x / width).toBeCloseTo(xFraction, 10);
+    expect(screen.y / height).toBeCloseTo(yFraction, 10);
+  });
+
+  it("reduces to plain passthrough when aspectRatio is 1 (matching the pre-fix square-canvas behavior)", () => {
+    const state = createInitialState();
+    state.aspectRatio = 1;
+
+    const { x, y } = screenFractionToWorldXY(state, 0.3, 0.7);
+
+    expect(x).toBeCloseTo(0.3, 10);
+    expect(y).toBeCloseTo(0.7, 10);
   });
 });

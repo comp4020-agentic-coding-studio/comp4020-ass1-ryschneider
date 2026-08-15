@@ -64,6 +64,22 @@ export function buildProjection(state: SceneState): Mat4 {
   return orthographic(0.5 - halfWidth, 0.5 + halfWidth, 0.5 + halfHeight, 0.5 - halfHeight, near, far);
 }
 
+/**
+ * Inverts buildProjection's un-engaged-view orthographic box: turns a canvas
+ * fraction (0..1, top-left origin, matching pointer coordinates) back into
+ * the world (x, y) it renders at, so a vertex placed under the pointer always
+ * lands at the pixel it was clicked at, regardless of aspect ratio. Only
+ * valid for the identity-view case (stage 1's actual usage) -- it hardcodes
+ * the (0.5, 0.5) anchor rather than branching on viewEngaged.
+ */
+export function screenFractionToWorldXY(state: SceneState, xFraction: number, yFraction: number): { x: number; y: number } {
+  const { halfHeight } = state.orthographic;
+  const halfWidth = halfHeight * state.aspectRatio;
+  const ndcX = 2 * xFraction - 1;
+  const ndcY = 1 - 2 * yFraction;
+  return { x: ndcX * halfWidth + 0.5, y: 0.5 - ndcY * halfHeight };
+}
+
 /** Exported so stage 3's matrix-view panel can compute the same view matrix renderScene uses. */
 export function buildView(state: SceneState): Mat4 {
   if (!state.viewEngaged) return identity();
@@ -136,6 +152,7 @@ export function renderScene(state: SceneState, fb: Framebuffer, background: read
       const clip = transformPoint(viewProjection, position);
       if (clip.w <= 0) return null;
       const ndc = toNdc(clip);
+      if (ndc.z < -1 || ndc.z > 1) return null;
       const screen = ndcToScreen(ndc, fb.width, fb.height);
 
       const baseColor = mesh.vertexColors[i] ?? mesh.meshColor;
