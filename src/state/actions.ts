@@ -197,11 +197,15 @@ export function fitEverythingIntoView(store: Store): void {
     if (state.projectionKind === "orthographic") {
       const halfHeight = clamp(paddedRadius / Math.min(1, state.aspectRatio), ORTHO_HALF_HEIGHT_BOUNDS);
       const distance = clamp(paddedRadius * 2, VIEW_DISTANCE_BOUNDS);
+      // Prefer the same near/far resetProjection defaults use; only widen past them as a
+      // safety floor when content genuinely doesn't fit inside the normal range.
+      const far = Math.max(10, distance + paddedRadius);
+      const near = Math.min(-10, -(distance + paddedRadius));
       return {
         ...state,
         viewEngaged: true,
         view: { ...state.view, target: center, distance },
-        orthographic: { ...state.orthographic, halfHeight, near: -(distance + paddedRadius), far: distance + paddedRadius, autoFit: false },
+        orthographic: { ...state.orthographic, halfHeight, near, far, autoFit: false },
         ...withReveals(state, 3, 4),
       };
     }
@@ -209,11 +213,12 @@ export function fitEverythingIntoView(store: Store): void {
     const verticalHalf = deg2rad(state.perspective.fovYDeg) / 2;
     const horizontalHalf = Math.atan(Math.tan(verticalHalf) * state.aspectRatio);
     const distance = clamp(paddedRadius / Math.sin(Math.min(verticalHalf, horizontalHalf)), VIEW_DISTANCE_BOUNDS);
+    const far = clamp(Math.max(10, distance + paddedRadius), { min: state.perspective.near, max: 20 });
     return {
       ...state,
       viewEngaged: true,
       view: { ...state.view, target: center, distance },
-      perspective: { ...state.perspective, far: clamp(distance + paddedRadius, { min: state.perspective.near, max: 20 }) },
+      perspective: { ...state.perspective, far },
       ...withReveals(state, 3, 4),
     };
   });
