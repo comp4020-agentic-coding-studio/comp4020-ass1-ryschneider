@@ -3,10 +3,9 @@ import { loadPerspectiveExample, resetProjection, setOrthoParam, setPerspectiveP
 import type { ProjectionKind } from "../../state/scene";
 import type { Store } from "../../state/store";
 import { mountMatrixView } from "../matrix-view";
-import type { CanvasHost } from "../canvas-host";
 
 /** Wires stage 2's projection controls (kind toggle, fov/near/far/halfHeight, reset, preset) and its matrix-view mount. */
-export function mountProjectionControls(root: ParentNode, store: Store, host: CanvasHost): void {
+export function mountProjectionControls(root: ParentNode, store: Store): void {
   const kindInputs = Array.from(root.querySelectorAll<HTMLInputElement>('input[name="projection-kind"]'));
   const fovInputEl = root.querySelector<HTMLInputElement>('[data-field="fovYDeg"]');
   const nearInputEl = root.querySelector<HTMLInputElement>('[data-field="near"]');
@@ -67,6 +66,6 @@ export function mountProjectionControls(root: ParentNode, store: Store, host: Ca
   render();
 
   if (matrixMount) {
-    mountMatrixView(matrixMount, store, () => buildProjection(store.get(), host.canvas.width, host.canvas.height), "Projection matrix");
+    mountMatrixView(matrixMount, store, () => buildProjection(store.get()), "Projection matrix");
   }
 }

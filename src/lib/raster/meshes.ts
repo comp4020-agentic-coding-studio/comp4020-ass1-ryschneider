@@ -36,17 +36,16 @@ function buildMesh(faces: { verts: readonly Vec3[]; normal: Vec3 }[]): Mesh {
   return { positions, normals, indices };
 }
 
-// Sized to sit alongside the stage-1 table (screen-pixel-scale coordinates,
-// spanning ~100-300 units), not a classic unit cube -- at that scale a -0.5..0.5
-// mesh is sub-pixel and invisible next to it.
-const H = 60;
+// A true unit cube (extent -0.5..0.5 per axis), matching the normalized
+// 0..1 scale the rest of the scene (table rows, default orthographic box) uses.
+const H = 0.5;
 // prettier-ignore
 const CUBE_CORNERS = {
   ppp: vec3(H, H, H), ppn: vec3(H, H, -H), pnp: vec3(H, -H, H), pnn: vec3(H, -H, -H),
   npp: vec3(-H, H, H), npn: vec3(-H, H, -H), nnp: vec3(-H, -H, H), nnn: vec3(-H, -H, -H),
 };
 
-/** Cube (extent -60..60 per axis), 6 faces x 2 triangles, flat per-face normals. */
+/** Cube (extent -0.5..0.5 per axis), 6 faces x 2 triangles, flat per-face normals. */
 export function cubeMesh(): Mesh {
   const c = CUBE_CORNERS;
   return buildMesh([
@@ -59,7 +58,7 @@ export function cubeMesh(): Mesh {
   ]);
 }
 
-/** Square-base pyramid (base extent -60..60, apex at y=60), 4 triangular sides + 1 square base. */
+/** Square-base pyramid (base extent -0.5..0.5, apex at y=0.5), 4 triangular sides + 1 square base. */
 export function pyramidMesh(): Mesh {
   const apex = vec3(0, H, 0);
   const pp = vec3(H, -H, H);
@@ -85,7 +84,7 @@ export function pyramidMesh(): Mesh {
   ]);
 }
 
-/** A flat horizontal plane (extent -60..60) facing +Y, 2 triangles. */
+/** A flat horizontal plane (extent -0.5..0.5) facing +Y, 2 triangles. */
 export function planeMesh(): Mesh {
   return buildMesh([
     { verts: [vec3(-H, 0, H), vec3(H, 0, H), vec3(H, 0, -H), vec3(-H, 0, -H)], normal: vec3(0, 1, 0) },

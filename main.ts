@@ -21,7 +21,7 @@ mountRenderLoop(host, store);
 mountStagePanels(document, store);
 mountVertexTable(document, store);
 mountPrimitiveFillToggles(document, store);
-mountProjectionControls(document, store, host);
+mountProjectionControls(document, store);
 mountViewControls(document, store);
 mountMeshList(document, store);
 mountColorControls(document, store);

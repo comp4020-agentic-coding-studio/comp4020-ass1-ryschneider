@@ -47,22 +47,21 @@ export function buildModelMatrix(transform: MeshInstance["transform"]): Mat4 {
 }
 
 /**
- * Canvas-matched orthographic box by default: `halfHeight` is kept in sync
- * with the live canvas height (see canvas-host.ts) until stage 2 is touched,
- * which is exactly when this reduces to the verified screen-space passthrough
- * (l=0, r=width, b=height, t=0).
+ * A normalized 0..1, canvas-matched orthographic box by default: the box is
+ * always centered at (0.5, 0.5) and corrected for `state.aspectRatio` (kept
+ * in sync with the live canvas by canvas-host.ts), so mesh content never
+ * looks stretched even though the box itself doesn't depend on actual pixel
+ * dimensions -- those only enter the pipeline in the viewport step
+ * (`ndcToScreen`).
  */
-export function buildProjection(state: SceneState, width: number, height: number): Mat4 {
+export function buildProjection(state: SceneState): Mat4 {
   if (state.projectionKind === "perspective") {
     const { fovYDeg, near, far } = state.perspective;
-    return perspective(deg2rad(fovYDeg), width / height, near, far);
+    return perspective(deg2rad(fovYDeg), state.aspectRatio, near, far);
   }
   const { halfHeight, near, far } = state.orthographic;
-  const aspect = width / height;
-  const halfWidth = halfHeight * aspect;
-  const cx = width / 2;
-  const cy = height / 2;
-  return orthographic(cx - halfWidth, cx + halfWidth, cy + halfHeight, cy - halfHeight, near, far);
+  const halfWidth = halfHeight * state.aspectRatio;
+  return orthographic(0.5 - halfWidth, 0.5 + halfWidth, 0.5 + halfHeight, 0.5 - halfHeight, near, far);
 }
 
 /** Exported so stage 3's matrix-view panel can compute the same view matrix renderScene uses. */
@@ -119,7 +118,7 @@ function shadeFnFor(state: SceneState, light: Light): ShadeFn {
 export function renderScene(state: SceneState, fb: Framebuffer, background: readonly [number, number, number] = DEFAULT_BACKGROUND): void {
   clear(fb, background);
 
-  const projection = buildProjection(state, fb.width, fb.height);
+  const projection = buildProjection(state);
   const view = buildView(state);
   const light = buildLight(state, view);
   const shade = shadeFnFor(state, light);

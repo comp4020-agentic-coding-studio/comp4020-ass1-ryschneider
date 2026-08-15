@@ -42,14 +42,15 @@ export function identityTransform(): MeshTransform {
 export const STAGE1_TABLE_MESH_ID = "stage1-table";
 
 /**
- * Kept small (well under 358 CSS px) so the identity-passthrough triangle
- * stays fully visible on a narrow phone canvas, not just a wide desktop one.
+ * Normalized 0..1, top-left origin -- proportioned from the old screen-pixel
+ * triangle (an 720x400 reference canvas) so it keeps the same shape, kept
+ * small so it stays fully visible on a narrow phone canvas too.
  */
 export function defaultTableRows(): RawVertexRow[] {
   return [
-    { id: "r0", x: 80, y: 90, z: 0 },
-    { id: "r1", x: 280, y: 90, z: 0 },
-    { id: "r2", x: 180, y: 230, z: 0 },
+    { id: "r0", x: 80 / 720, y: 90 / 400, z: 0 },
+    { id: "r1", x: 280 / 720, y: 90 / 400, z: 0 },
+    { id: "r2", x: 180 / 720, y: 230 / 400, z: 0 },
   ];
 }
 
@@ -70,6 +71,8 @@ export interface SceneState {
   light: { azimuthDeg: number; elevationDeg: number; distance: number; color: Vec3 };
   lightingRate: LightingRate;
   progress: { revealed: boolean[] };
+  /** width/height of the canvas, kept in sync by canvas-host.ts on resize. */
+  aspectRatio: number;
 }
 
 /** meshes[0] is the stage-1 table, derived from tableRows via {@link tableRowsToMesh}. */
@@ -93,14 +96,12 @@ export function createInitialState(): SceneState {
     primitive: "triangles",
     fill: "solid",
     projectionKind: "orthographic",
-    // near/far/distance are pixel-scale, matching the table's screen-space coordinates
-    // (canvas-host.ts keeps target synced to the canvas center, same convention as
-    // orthographic's canvas-matched box) -- unit-scale defaults would put the table
-    // outside the frustum the moment perspective + view are both engaged.
-    perspective: { fovYDeg: 60, near: 1, far: 5000 },
-    orthographic: { halfHeight: 300, near: -1000, far: 1000, autoFit: true },
+    // near/far/distance are unit-scale, matching the table's normalized 0..1
+    // screen-space coordinates and meshes.ts's unit-cube-scale meshes.
+    perspective: { fovYDeg: 60, near: 0.01, far: 10 },
+    orthographic: { halfHeight: 0.5, near: -10, far: 10, autoFit: true },
     viewEngaged: false,
-    view: { azimuthDeg: 0, elevationDeg: 20, distance: 600, target: vec3(0, 0, 0) },
+    view: { azimuthDeg: 0, elevationDeg: 20, distance: 3, target: vec3(0.5, 0.5, 0) },
     blend: "linear",
     baseColor: vec3(1, 1, 1),
     // specular starts at 0, a non-degenerate point on its own continuous slider (unlike
@@ -110,9 +111,10 @@ export function createInitialState(): SceneState {
     // A large default distance (well past the far plane) keeps the light reading as
     // roughly directional out of the box; the light-distance slider is what lets a
     // user drag it down to demonstrate point-light falloff-free positional character.
-    light: { azimuthDeg: -45, elevationDeg: 45, distance: 5000, color: vec3(1, 1, 1) },
+    light: { azimuthDeg: -45, elevationDeg: 45, distance: 40, color: vec3(1, 1, 1) },
     lightingRate: "perVertex",
     progress: { revealed: [true, false, false, false, false, false, false] },
+    aspectRatio: 16 / 9,
   };
 }
 

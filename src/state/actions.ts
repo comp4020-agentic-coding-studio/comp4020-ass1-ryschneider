@@ -66,7 +66,7 @@ export function setTableRow(store: Store, rowId: string, patch: Partial<Pick<Raw
 
 export function addTableRow(store: Store): void {
   store.update((state) => {
-    const tableRows = [...state.tableRows, { id: freshRowId(), x: 300, y: 200, z: 0 }];
+    const tableRows = [...state.tableRows, { id: freshRowId(), x: 0.5, y: 0.5, z: 0 }];
     const withRows = { ...state, tableRows };
     const meshes = [recomputeTableMesh(withRows), ...state.meshes.slice(1)];
     return { ...withRows, meshes, ...withReveal(state, 2) };
@@ -135,8 +135,8 @@ export function resetProjection(store: Store): void {
   store.update((state) => ({
     ...state,
     projectionKind: "orthographic",
-    perspective: { fovYDeg: 60, near: 1, far: 5000 },
-    orthographic: { halfHeight: state.orthographic.halfHeight, near: -1000, far: 1000, autoFit: true },
+    perspective: { fovYDeg: 60, near: 0.01, far: 10 },
+    orthographic: { halfHeight: state.orthographic.halfHeight, near: -10, far: 10, autoFit: true },
   }));
 }
 
@@ -144,7 +144,7 @@ export function loadPerspectiveExample(store: Store): void {
   store.update((state) => ({
     ...state,
     projectionKind: "perspective",
-    perspective: { fovYDeg: 60, near: 1, far: 5000 },
+    perspective: { fovYDeg: 60, near: 0.01, far: 10 },
     viewEngaged: true,
     ...withReveals(state, 3, 4),
   }));

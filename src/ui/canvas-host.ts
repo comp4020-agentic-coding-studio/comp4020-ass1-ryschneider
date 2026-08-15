@@ -1,4 +1,3 @@
-import { vec3 } from "../lib/raster/vec3";
 import type { Store } from "../state/store";
 
 export interface CanvasHost {
@@ -9,16 +8,13 @@ export interface CanvasHost {
 /**
  * Owns the canvas element: keeps its backing-store resolution in device
  * pixels (crisp on high-DPI screens) while CSS controls the display size,
- * and, as long as `state.orthographic.autoFit` hasn't been switched off by
- * a manual stage-2 edit, keeps `orthographic.halfHeight` synced to half the
- * canvas's CSS height, so the default projection stays the exact
- * screen-space passthrough as the canvas resizes (including on a phone
- * viewport, or a resize mid-interaction).
- *
- * `view.target` has no UI control of its own, so it's always kept at the
- * canvas center here -- the same convention the orthographic box already
- * uses -- so the orbit camera in stage 3 looks at the same pixel-space
- * content the table actually renders into, instead of the world origin.
+ * and keeps `state.aspectRatio` synced to the canvas's own width/height
+ * ratio on every resize (including on a phone viewport, or a resize
+ * mid-interaction). The normalized 0..1 orthographic box (`halfHeight:
+ * 0.5`, centered at (0.5, 0.5)) is canvas-matched by construction at any
+ * resolution once corrected for `aspectRatio`, so unlike the old
+ * screen-pixel-scale convention, no other scene value needs resize-time
+ * mutation to stay in sync.
  */
 export function mountCanvasHost(canvas: HTMLCanvasElement, store: Store): CanvasHost {
   const ctx = canvas.getContext("2d");
@@ -35,11 +31,7 @@ export function mountCanvasHost(canvas: HTMLCanvasElement, store: Store): Canvas
       canvas.height = height;
     }
 
-    store.update((state) => ({
-      ...state,
-      orthographic: state.orthographic.autoFit ? { ...state.orthographic, halfHeight: height / 2 } : state.orthographic,
-      view: { ...state.view, target: vec3(width / 2, height / 2, 0) },
-    }));
+    store.update((state) => ({ ...state, aspectRatio: width / height }));
   }
 
   resize();

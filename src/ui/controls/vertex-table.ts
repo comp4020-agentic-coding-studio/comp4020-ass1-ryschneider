@@ -27,7 +27,7 @@ export function mountVertexTable(root: ParentNode, store: Store): void {
           const td = document.createElement("td");
           const input = document.createElement("input");
           input.type = "number";
-          input.step = "1";
+          input.step = "0.01";
           input.value = String(row[axis]);
           input.setAttribute("aria-label", `Vertex ${axis}`);
           input.addEventListener("input", () => {
