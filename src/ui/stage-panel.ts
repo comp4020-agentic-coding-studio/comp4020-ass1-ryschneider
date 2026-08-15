@@ -2,21 +2,24 @@ import type { Store } from "../state/store";
 
 /**
  * Unhides `<section data-stage="n">` the first time `progress.revealed[n-1]`
- * flips true, and auto-collapses stage n's `<details>` once stage n+1 first
- * reveals — unless the user has manually toggled that `<details>` themselves,
- * in which case their choice wins and auto-collapse backs off for good.
+ * flips true. Strict accordion: opening any stage's `<details>` closes every
+ * other stage's `<details>`, unconditionally -- at most one stage is ever
+ * open at a time.
  */
 export function mountStagePanels(root: ParentNode, store: Store): void {
   const sections = Array.from(root.querySelectorAll<HTMLElement>("section.stage[data-stage]"));
-  const userToggled = new Set<number>();
+  const detailsList = sections
+    .map((section) => section.querySelector<HTMLDetailsElement>(`details[data-stage-details="${section.dataset.stage}"]`))
+    .filter((details): details is HTMLDetailsElement => details !== null);
 
-  for (const section of sections) {
-    const stageNumber = Number(section.dataset.stage);
-    const details = section.querySelector<HTMLDetailsElement>(`details[data-stage-details="${stageNumber}"]`);
-    details?.addEventListener("toggle", () => userToggled.add(stageNumber));
+  for (const details of detailsList) {
+    details.addEventListener("toggle", () => {
+      if (!details.open) return;
+      for (const other of detailsList) {
+        if (other !== details) other.open = false;
+      }
+    });
   }
-
-  let previousRevealed: boolean[] = [];
 
   function render(): void {
     const { revealed } = store.get().progress;
@@ -24,17 +27,8 @@ export function mountStagePanels(root: ParentNode, store: Store): void {
     for (const section of sections) {
       const stageNumber = Number(section.dataset.stage);
       const index = stageNumber - 1;
-      const isRevealed = revealed[index] ?? false;
-      section.hidden = !isRevealed;
-
-      const justRevealedNext = revealed[stageNumber] && !previousRevealed[stageNumber];
-      if (justRevealedNext && !userToggled.has(stageNumber)) {
-        const details = section.querySelector<HTMLDetailsElement>(`details[data-stage-details="${stageNumber}"]`);
-        if (details) details.open = false;
-      }
+      section.hidden = !(revealed[index] ?? false);
     }
-
-    previousRevealed = revealed.slice();
   }
 
   store.subscribe(render);
