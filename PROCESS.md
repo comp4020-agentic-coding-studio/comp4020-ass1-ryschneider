@@ -72,6 +72,23 @@ reveal/engagement ratchets that make "everything stays live" true are new.
    Found by using the deployed-shaped artefact the way a grader would,
    clicking a control in isolation, not by re-running the automated suite.
 
+5. **Reusing an existing convention instead of inventing a second one.**
+   A later round of feedback asked to replace five radio-button fieldsets
+   with buttons, and to give stage 4 and stage 5 a synchronized mesh
+   selector. Rather than add a new ARIA pattern for the button toggles, I
+   noticed the "Add vertex" armed state already used `aria-pressed` with a
+   CSS rule to match, so the new `mountButtonGroup` helper reused that exact
+   convention for all five groups
+   ([`f71bfad`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-ryschneider/commit/f71bfad)).
+   The mesh selector followed the same instinct one level up: `mesh-list.ts`
+   and `color-controls.ts` had each independently defined an identical
+   `activeMesh(store)` helper, so deduplicating it into one selector in
+   `scene.ts` and mounting a single shared `mountMeshSelector` in both stages
+   made "selecting a mesh in stage 4 updates stage 5" true by construction --
+   the two panels read the same `activeMeshId`, with no extra sync code to
+   write or get wrong
+   ([`cee4516`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-ryschneider/commit/cee4516)).
+
 ## Before you ship
 
 `pnpm check:evidence` verifies your citations resolve to real commits, that the
