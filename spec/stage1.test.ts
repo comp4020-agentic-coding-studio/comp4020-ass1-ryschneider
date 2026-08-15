@@ -73,9 +73,9 @@ describe("stage 1: structural markup (built dist/index.html)", () => {
     expect(table?.querySelectorAll("tbody[data-vertex-rows] tr").length ?? 0).toBeGreaterThanOrEqual(0);
   });
 
-  it("has persistent primitive-mode and fill-mode radio groups", () => {
-    expect(doc.querySelectorAll('input[name="primitive"]').length).toBe(3);
-    expect(doc.querySelectorAll('input[name="fill"]').length).toBe(2);
+  it("has persistent primitive-mode and fill-mode button groups", () => {
+    expect(doc.querySelectorAll('[data-group="primitive"] button[data-value]').length).toBe(3);
+    expect(doc.querySelectorAll('[data-group="fill"] button[data-value]').length).toBe(2);
   });
 
   it("has the render target canvas", () => {

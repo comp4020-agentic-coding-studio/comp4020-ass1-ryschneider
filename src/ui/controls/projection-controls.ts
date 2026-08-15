@@ -3,11 +3,14 @@ import { loadPerspectiveExample, resetProjection, setOrthoParam, setPerspectiveP
 import type { ProjectionKind } from "../../state/scene";
 import type { Store } from "../../state/store";
 import { mountMatrixView } from "../matrix-view";
+import { mountButtonGroup } from "./button-group";
 import { bindRangeField } from "./range-field";
 
 /** Wires stage 2's projection controls (kind toggle, fov/near/far/halfHeight, reset, preset) and its matrix-view mount. */
 export function mountProjectionControls(root: ParentNode, store: Store): void {
-  const kindInputs = Array.from(root.querySelectorAll<HTMLInputElement>('input[name="projection-kind"]'));
+  const kindGroup = mountButtonGroup<ProjectionKind>(root, '[data-group="projection-kind"]', (value) =>
+    setProjectionKind(store, value),
+  );
   const fovInputEl = root.querySelector<HTMLInputElement>('[data-field="fovYDeg"]');
   const nearInputEl = root.querySelector<HTMLInputElement>('[data-field="near"]');
   const farInputEl = root.querySelector<HTMLInputElement>('[data-field="far"]');
@@ -32,12 +35,6 @@ export function mountProjectionControls(root: ParentNode, store: Store): void {
     formatValue: (v) => v.toFixed(2),
   });
 
-  for (const input of kindInputs) {
-    input.addEventListener("change", () => {
-      if (input.checked) setProjectionKind(store, input.value as ProjectionKind);
-    });
-  }
-
   fovInput.addEventListener("input", () => setPerspectiveParam(store, { fovYDeg: Number(fovInput.value) }));
 
   nearInput.addEventListener("input", () => {
@@ -59,7 +56,7 @@ export function mountProjectionControls(root: ParentNode, store: Store): void {
 
   function render(): void {
     const state = store.get();
-    for (const input of kindInputs) input.checked = input.value === state.projectionKind;
+    kindGroup.sync(state.projectionKind);
 
     fovInput.value = String(state.perspective.fovYDeg);
     fovField.sync(state.perspective.fovYDeg);

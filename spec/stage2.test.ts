@@ -43,7 +43,7 @@ describe("stage 2: structural markup (built dist/index.html)", () => {
   it("has a stage-2 panel with projection controls, starting hidden", () => {
     const stage2 = doc.querySelector('section[data-stage="2"]');
     expect(stage2?.hasAttribute("hidden")).toBe(true);
-    expect(stage2?.querySelectorAll('input[name="projection-kind"]').length).toBe(2);
+    expect(stage2?.querySelectorAll('[data-group="projection-kind"] button[data-value]').length).toBe(2);
   });
 
   it("has fov/near/far/half-height range inputs", () => {

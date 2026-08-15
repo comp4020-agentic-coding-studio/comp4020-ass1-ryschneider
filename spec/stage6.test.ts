@@ -102,7 +102,7 @@ describe("stage 6: structural markup (built dist/index.html)", () => {
     }
     for (const value of ["perVertex", "perPixel"]) {
       expect(
-        stage6?.querySelector(`input[name="lighting-rate"][value="${value}"]`),
+        stage6?.querySelector(`[data-group="lighting-rate"] button[data-value="${value}"]`),
         `expected lighting-rate=${value}`,
       ).toBeTruthy();
     }

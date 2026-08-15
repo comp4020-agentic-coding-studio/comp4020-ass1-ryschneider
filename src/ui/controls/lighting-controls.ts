@@ -1,6 +1,7 @@
 import { setLightParam, setLightingRate, setMaterialParam } from "../../state/actions";
 import type { LightingRate } from "../../state/scene";
 import type { Store } from "../../state/store";
+import { mountButtonGroup } from "./button-group";
 import { bindRangeField } from "./range-field";
 
 /** Wires stage 6 (ambient/diffuse, light position, per-vertex/per-pixel rate) and stage 7 (specular/shininess). */
@@ -10,7 +11,9 @@ export function mountLightingControls(root: ParentNode, store: Store): void {
   const lightAzimuthInput = root.querySelector<HTMLInputElement>('[data-field="lightAzimuthDeg"]');
   const lightElevationInput = root.querySelector<HTMLInputElement>('[data-field="lightElevationDeg"]');
   const lightDistanceInput = root.querySelector<HTMLInputElement>('[data-field="lightDistance"]');
-  const rateInputs = Array.from(root.querySelectorAll<HTMLInputElement>('input[name="lighting-rate"]'));
+  const rateGroup = mountButtonGroup<LightingRate>(root, '[data-group="lighting-rate"]', (value) =>
+    setLightingRate(store, value),
+  );
   const engageIndicator = root.querySelector<HTMLElement>('[data-testid="material-engage-indicator"]');
   const specularInput = root.querySelector<HTMLInputElement>('[data-field="specular"]');
   const shininessInput = root.querySelector<HTMLInputElement>('[data-field="shininess"]');
@@ -49,12 +52,6 @@ export function mountLightingControls(root: ParentNode, store: Store): void {
   specular.addEventListener("input", () => setMaterialParam(store, { specular: Number(specular.value) }));
   shininess.addEventListener("input", () => setMaterialParam(store, { shininess: Number(shininess.value) }));
 
-  for (const input of rateInputs) {
-    input.addEventListener("change", () => {
-      if (input.checked) setLightingRate(store, input.value as LightingRate);
-    });
-  }
-
   function render(): void {
     const { material, light, lightingRate } = store.get();
     if (document.activeElement !== ambient) ambient.value = String(material.ambient);
@@ -71,7 +68,7 @@ export function mountLightingControls(root: ParentNode, store: Store): void {
     specularField.sync(material.specular);
     if (document.activeElement !== shininess) shininess.value = String(material.shininess);
     shininessField.sync(material.shininess);
-    for (const input of rateInputs) input.checked = input.value === lightingRate;
+    rateGroup.sync(lightingRate);
     indicator.textContent = material.enabled
       ? "Lighting: on (ambient + diffuse" + (material.specular > 0 ? " + specular" : "") + ")"
       : "Lighting: off (raw vertex colors)";

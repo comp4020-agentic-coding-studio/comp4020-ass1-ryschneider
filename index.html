@@ -35,17 +35,23 @@
               </div>
               <button type="button" data-action="add-row" aria-pressed="false">Add vertex</button>
 
-              <fieldset>
-                <legend>Primitive mode</legend>
-                <label><input type="radio" name="primitive" value="points" checked /> Points</label>
-                <label><input type="radio" name="primitive" value="lines" /> Lines</label>
-                <label><input type="radio" name="primitive" value="triangles" /> Triangles</label>
+              <fieldset data-group="primitive">
+                <legend>
+                  Primitive mode
+                  <span class="hint-icon" tabindex="0" title="Controls how the vertex table is rendered: as points, line segments, or filled triangles">?</span>
+                </legend>
+                <button type="button" data-value="points" aria-pressed="true">Points</button>
+                <button type="button" data-value="lines" aria-pressed="false">Lines</button>
+                <button type="button" data-value="triangles" aria-pressed="false">Triangles</button>
               </fieldset>
 
-              <fieldset>
-                <legend>Fill mode</legend>
-                <label><input type="radio" name="fill" value="solid" checked /> Solid</label>
-                <label><input type="radio" name="fill" value="wireframe" /> Wireframe</label>
+              <fieldset data-group="fill">
+                <legend>
+                  Fill mode
+                  <span class="hint-icon" tabindex="0" title="Solid fills each triangle; wireframe draws only its edges">?</span>
+                </legend>
+                <button type="button" data-value="solid" aria-pressed="true">Solid</button>
+                <button type="button" data-value="wireframe" aria-pressed="false">Wireframe</button>
               </fieldset>
             </div>
           </details>
@@ -55,10 +61,13 @@
           <details data-stage-details="2">
             <summary>Stage 2: Projection matrix</summary>
             <div class="stage-body" data-mount="stage2">
-              <fieldset>
-                <legend>Projection</legend>
-                <label><input type="radio" name="projection-kind" value="orthographic" checked /> Orthographic</label>
-                <label><input type="radio" name="projection-kind" value="perspective" /> Perspective</label>
+              <fieldset data-group="projection-kind">
+                <legend>
+                  Projection
+                  <span class="hint-icon" tabindex="0" title="Orthographic keeps parallel lines parallel; perspective adds depth foreshortening">?</span>
+                </legend>
+                <button type="button" data-value="orthographic" aria-pressed="true">Orthographic</button>
+                <button type="button" data-value="perspective" aria-pressed="false">Perspective</button>
               </fieldset>
               <label>Field of view (Y)<input type="range" data-field="fovYDeg" min="10" max="150" value="60" /></label>
               <label>Near<input type="range" data-field="near" min="0.001" max="0.5" step="0.001" value="0.01" /></label>
@@ -120,10 +129,13 @@
             <div class="stage-body" data-mount="stage5">
               <label>Mesh color<input type="color" data-field="mesh-color" value="#ffffff" /></label>
               <ul class="vertex-color-list" data-mount="vertex-colors"></ul>
-              <fieldset>
-                <legend>Blend</legend>
-                <label><input type="radio" name="blend" value="flat" /> Flat</label>
-                <label><input type="radio" name="blend" value="linear" checked /> Linear</label>
+              <fieldset data-group="blend">
+                <legend>
+                  Blend
+                  <span class="hint-icon" tabindex="0" title="Flat uses one color per triangle; linear interpolates colors across each vertex">?</span>
+                </legend>
+                <button type="button" data-value="flat" aria-pressed="false">Flat</button>
+                <button type="button" data-value="linear" aria-pressed="true">Linear</button>
               </fieldset>
             </div>
           </details>
@@ -139,10 +151,13 @@
               <label>Light azimuth<input type="range" data-field="lightAzimuthDeg" min="-180" max="180" value="-45" /></label>
               <label>Light elevation<input type="range" data-field="lightElevationDeg" min="-89" max="89" value="45" /></label>
               <label>Light distance<input type="range" data-field="lightDistance" min="1" max="80" step="1" value="40" /></label>
-              <fieldset>
-                <legend>Lighting rate</legend>
-                <label><input type="radio" name="lighting-rate" value="perVertex" checked /> Per-vertex (Gouraud)</label>
-                <label><input type="radio" name="lighting-rate" value="perPixel" /> Per-pixel (Phong)</label>
+              <fieldset data-group="lighting-rate">
+                <legend>
+                  Lighting rate
+                  <span class="hint-icon" tabindex="0" title="Per-vertex (Gouraud) computes lighting at each vertex and interpolates; per-pixel (Phong) computes lighting at every fragment">?</span>
+                </legend>
+                <button type="button" data-value="perVertex" aria-pressed="true">Per-vertex (Gouraud)</button>
+                <button type="button" data-value="perPixel" aria-pressed="false">Per-pixel (Phong)</button>
               </fieldset>
             </div>
           </details>

@@ -71,7 +71,10 @@ describe("stage 5: structural markup (built dist/index.html)", () => {
     expect(stage5?.querySelector('[data-field="mesh-color"]')).toBeTruthy();
     expect(stage5?.querySelector('[data-mount="vertex-colors"]')).toBeTruthy();
     for (const value of ["flat", "linear"]) {
-      expect(stage5?.querySelector(`input[name="blend"][value="${value}"]`), `expected blend=${value}`).toBeTruthy();
+      expect(
+        stage5?.querySelector(`[data-group="blend"] button[data-value="${value}"]`),
+        `expected blend=${value}`,
+      ).toBeTruthy();
     }
   });
 });

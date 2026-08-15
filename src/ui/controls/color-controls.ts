@@ -3,6 +3,7 @@ import type { BlendMode, MeshInstance } from "../../state/scene";
 import type { Store } from "../../state/store";
 import type { Vec3 } from "../../lib/raster/vec3";
 import { vec3 } from "../../lib/raster/vec3";
+import { mountButtonGroup } from "./button-group";
 
 function hexToVec3(hex: string): Vec3 {
   const n = Number.parseInt(hex.slice(1), 16);
@@ -25,7 +26,7 @@ function activeMesh(store: Store): MeshInstance {
 export function mountColorControls(root: ParentNode, store: Store): void {
   const meshColorInput = root.querySelector<HTMLInputElement>('[data-field="mesh-color"]');
   const vertexList = root.querySelector<HTMLElement>('[data-mount="vertex-colors"]');
-  const blendInputs = Array.from(root.querySelectorAll<HTMLInputElement>('input[name="blend"]'));
+  const blendGroup = mountButtonGroup<BlendMode>(root, '[data-group="blend"]', (value) => setBlendMode(store, value));
 
   if (!meshColorInput || !vertexList) {
     throw new Error("color-controls: expected markup not found");
@@ -36,12 +37,6 @@ export function mountColorControls(root: ParentNode, store: Store): void {
   meshColor.addEventListener("input", () => {
     setMeshColor(store, activeMesh(store).id, hexToVec3(meshColor.value));
   });
-
-  for (const input of blendInputs) {
-    input.addEventListener("change", () => {
-      if (input.checked) setBlendMode(store, input.value as BlendMode);
-    });
-  }
 
   let renderedMeshId: string | null = null;
   let vertexInputs: HTMLInputElement[] = [];
@@ -73,7 +68,7 @@ export function mountColorControls(root: ParentNode, store: Store): void {
     for (const [i, input] of vertexInputs.entries()) {
       if (document.activeElement !== input) input.value = vec3ToHex(mesh.vertexColors[i] ?? mesh.meshColor);
     }
-    for (const input of blendInputs) input.checked = input.value === state.blend;
+    blendGroup.sync(state.blend);
   }
 
   store.subscribe(render);
