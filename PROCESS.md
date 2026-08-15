@@ -6,107 +6,71 @@ demos. Stage 1 renders a table of "vertices" straight to screen pixels; each
 later stage turns one more part of `screen = viewport(Projection * View *
 Model * vertex)` from an identity default into something you can drag, while
 every earlier control keeps acting on the same mesh(es) all the way to stage
-7's Phong lighting. The math (mat4/vec3/camera/rasterizer) is ported from an
-earlier prototype; the state machine, the seven stages, and the
-reveal/engagement ratchets that make "everything stays live" true are new.
+7's Phong lighting.
+
+This is the third attempt at the idea. The first
+([`98dfabf`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-ryschneider/commit/98dfabf))
+was a six-stage scrollytelling article walking the same formula as schematic
+diagrams over a static mesh -- readable, but nothing on the page was live.
+The second
+([`ad003b4`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-ryschneider/commit/ad003b4))
+tried converting that article in place into an interactive WebGL2 game; it
+stalled after stage 1 and was abandoned. This build starts over from the
+initial commit, keeping only the raster math (ported wholesale --
+[`243ad48`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-ryschneider/commit/243ad48))
+and rebuilding everything about how the pipeline is presented: the state
+machine, the seven stages, and the engagement ratchets that make "everything
+stays live" true are new.
 
 ## The moments that mattered
 
 1. **Pinning the one fact the whole pipeline depends on, before building on
    top of it.** Stage 1 claims a table vertex is rendered "directly to
-   pixels," but that's really an ordinary orthographic matrix
-   (`l=0,r=W,b=H,t=0`) whose swapped top/bottom cancels the Y-flip
-   `ndcToScreen` always applies, a detail that's easy to get backwards and
-   have "work" anyway for one test case. Rather than trust that by
-   inspection, I wrote the numeric pin first: a vertex at `(10, 20, 0)` must
-   land at screen pixel `(10, 20)` to float precision, committed alongside
-   the matrix it's exercising
+   pixels," but that's really an orthographic matrix (`l=0,r=W,b=H,t=0`)
+   whose swapped top/bottom cancels the Y-flip `ndcToScreen` always applies --
+   a detail easy to get backwards and have "work" by accident. Rather than
+   trust that by inspection, I wrote the numeric pin first: a vertex at
+   `(10, 20, 0)` must land at screen pixel `(10, 20)` to float precision,
+   committed alongside the matrix it exercises
    ([`cbd172b`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-ryschneider/commit/cbd172b)).
-   Every later stage's default (identity model, identity view, canvas-matched
-   projection) is a statement that "this new matrix reduces to a no-op," and
-   this test is what made that statement checkable instead of assumed.
+   Every later stage's identity default is a claim that "this new matrix is a
+   no-op," and this test is what made that claim checkable.
 
-2. **A screenshot said "uniform flat color everywhere," and the instinct was
-   to start editing `shading.ts`.** Before touching the lighting code I read
-   `pipeline.ts` and `shading.ts` end to end and the math was right: a fixed
-   light direction dot-producted against differently-rotated face normals
-   can't coincidentally produce one color across a whole cube and a
-   triangle. The actual cause was outside the code: a stale, never-reloaded
-   browser tab from earlier ad-hoc testing plus a camera angle that only
-   showed one dominant face. A fresh reload with a clearer oblique angle
-   showed correct, distinctly-shaded faces immediately. The check that
-   mattered wasn't a new test, it was refusing to trust a single
-   screenshot's "looks broken" over reading the math that produces it, and
-   then re-testing under controlled conditions before believing either
-   verdict.
-
-3. **Splitting one messy diff into three honest commits instead of one
-   "fix bugs" commit.** Chasing that shading question left `actions.ts` with
-   three unrelated fixes tangled together: pixel-scale near/far defaults,
-   newly-added meshes spawning invisibly at the world origin instead of the
-   camera's target, and a stage-5 "mesh color" control that only wrote a
-   record nobody read. Since I couldn't stage hunks interactively, I
-   reverted two of the three fixes with the Edit tool, committed the first
-   alone, then re-applied and committed each of the others in turn
-   ([`57418f3`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-ryschneider/commit/57418f3),
-   [`f7ff275`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-ryschneider/commit/f7ff275),
-   [`df2e9bc`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-ryschneider/commit/df2e9bc)).
-   The extra care was for the reader of the history, not the code: three
-   commits that each answer "what changed and why" beat one that requires
-   re-deriving three separate stories from a combined diff.
-
-4. **A dead end the acceptance checklist wouldn't have caught.** Testing
-   resize-mid-interaction in a real browser, I clicked stage 2's Perspective
-   radio directly (not via the "load example" button) and the canvas went
-   solid black, no error, no test failure, nothing in `pnpm check`. Reading
-   `pipeline.ts`, the cause was structural: an identity view means the
-   camera coincides with the table's `z=0` vertices, so the perspective
-   divide (`w = -z`) hits exactly zero and every vertex fails the `clip.w <=
-   0` check. That's the same degeneracy the plan had already named for
-   `orbitView(0,0,0)`: perspective without a positioned camera has no
-   sensible default, same as an orbit camera with itself as its own target,
-   so the fix extends the existing view-engagement ratchet rather than
-   inventing a new mechanism: choosing perspective now engages the view with
-   its already-sensible defaults if it isn't engaged yet
+2. **A dead end the acceptance checklist wouldn't have caught.** Clicking
+   stage 2's Perspective radio directly (not the "load example" button) turned
+   the canvas solid black, no error, `pnpm check` green throughout. Reading
+   `pipeline.ts`, the cause was structural: an identity view puts the camera
+   at the table's `z=0` vertices, so the perspective divide (`w=-z`) hits
+   exactly zero and every vertex fails the clip check -- the same degeneracy
+   already named for `orbitView(0,0,0)`. The fix extends the existing
+   view-engagement ratchet rather than inventing a second mechanism: choosing
+   perspective now engages the view with its defaults if it isn't engaged yet
    ([`a95f2c4`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-ryschneider/commit/a95f2c4)).
-   Found by using the deployed-shaped artefact the way a grader would,
-   clicking a control in isolation, not by re-running the automated suite.
 
-5. **Reusing an existing convention instead of inventing a second one.**
-   A later round of feedback asked to replace five radio-button fieldsets
-   with buttons, and to give stage 4 and stage 5 a synchronized mesh
-   selector. Rather than add a new ARIA pattern for the button toggles, I
-   noticed the "Add vertex" armed state already used `aria-pressed` with a
-   CSS rule to match, so the new `mountButtonGroup` helper reused that exact
-   convention for all five groups
-   ([`f71bfad`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-ryschneider/commit/f71bfad)).
-   The mesh selector followed the same instinct one level up: `mesh-list.ts`
-   and `color-controls.ts` had each independently defined an identical
-   `activeMesh(store)` helper, so deduplicating it into one selector in
-   `scene.ts` and mounting a single shared `mountMeshSelector` in both stages
-   made "selecting a mesh in stage 4 updates stage 5" true by construction --
-   the two panels read the same `activeMeshId`, with no extra sync code to
-   write or get wrong
-   ([`cee4516`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-ryschneider/commit/cee4516)).
-
-6. **A test failure that pointed past the code it was written to check.** A
-   later feedback round asked for a "fit everything into view" button, which
-   needs the camera to look at an arbitrary point far from the origin. The
-   new tests for it failed with wildly out-of-range NDC z values even though
-   a debug dump showed the button's own near/far/distance arithmetic matched
-   my hand-derived expectations exactly. Reading `camera.ts` instead of
-   re-deriving the arithmetic again turned up the actual bug one layer down:
-   `orbitEye` always orbited the world origin, never `view.target`, so
-   `distance` only ever approximated the true eye-to-target separation for
-   the near-origin targets every prior feature happened to use. Confirming
-   the fix was safe meant reading `camera.test.ts` before touching
-   `camera.ts` -- neither existing test asserted anything about eye position
-   relative to a non-origin target, so orbiting around `target` instead of
-   the origin was a correctness fix, not a breaking change
+3. **A failing test that pointed past the code it was written to check.** A
+   "fit everything into view" feature needs the camera to look at an
+   arbitrary point, not the origin. Its tests failed with wildly
+   out-of-range NDC values even though a debug dump matched my hand-derived
+   near/far/distance arithmetic exactly. Reading `camera.ts` instead of
+   re-deriving the arithmetic again found the bug one layer down: `orbitEye`
+   always orbited the world origin, never `view.target`
    ([`5e5db50`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-ryschneider/commit/5e5db50)).
-   Two passing new tests would have been easy to trust; it was the failing
-   ones, and refusing to stop at "the formula looks right," that found a bug
-   no prior stage's manual testing had ever exercised.
+   No existing test asserted eye position relative to a non-origin target, so
+   this was a correctness fix the manual testing of six prior stages had
+   never exercised.
+
+4. **A CSS bug two layers deep, from the other half of this build.** Hint
+   tooltips clipped whenever they needed to overflow past a stage panel onto
+   the canvas. The obvious fix, `position: fixed`, doesn't work here:
+   `.stage-panels`'s `overflow-y: auto` forces `overflow-x` to clip too, and
+   `.stage`'s `backdrop-filter` creates a containing block that defeats a
+   naive fixed position anyway. The fix instead portals the tooltip to
+   `document.body`, positions it in JS via `getBoundingClientRect`, and swaps
+   CSS `:hover`/`:focus-within` for delegated pointer/focus events on
+   `document`
+   ([`1b17fe7`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-ryschneider/commit/1b17fe7))
+   -- landed by a parallel session refining the same build while this file
+   was being written.
 
 ## Before you ship
 
