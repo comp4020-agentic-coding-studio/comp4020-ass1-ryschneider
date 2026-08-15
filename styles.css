@@ -209,10 +209,7 @@ button[aria-pressed="true"]:hover {
 }
 
 .hint-tooltip {
-  position: absolute;
-  bottom: calc(100% + 0.35rem);
-  left: 50%;
-  transform: translateX(-50%);
+  position: fixed;
   width: max-content;
   max-width: 16rem;
   padding: 0.4rem 0.6rem;
@@ -227,15 +224,10 @@ button[aria-pressed="true"]:hover {
   visibility: hidden;
   pointer-events: none;
   transition: opacity 0.1s ease;
-  z-index: 20;
+  z-index: 1000;
 }
 
-label:hover .hint-tooltip,
-label:focus-within .hint-tooltip,
-legend:hover .hint-tooltip,
-legend:focus-within .hint-tooltip,
-p:hover .hint-tooltip,
-p:focus-within .hint-tooltip {
+.hint-tooltip-visible {
   opacity: 1;
   visibility: visible;
 }
