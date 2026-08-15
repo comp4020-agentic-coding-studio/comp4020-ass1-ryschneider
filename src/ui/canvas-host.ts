@@ -9,8 +9,8 @@ export interface CanvasHost {
 /**
  * Owns the canvas element: keeps its backing-store resolution in device
  * pixels (crisp on high-DPI screens) while CSS controls the display size,
- * and — as long as `state.orthographic.autoFit` hasn't been switched off by
- * a manual stage-2 edit — keeps `orthographic.halfHeight` synced to half the
+ * and, as long as `state.orthographic.autoFit` hasn't been switched off by
+ * a manual stage-2 edit, keeps `orthographic.halfHeight` synced to half the
  * canvas's CSS height, so the default projection stays the exact
  * screen-space passthrough as the canvas resizes (including on a phone
  * viewport, or a resize mid-interaction).

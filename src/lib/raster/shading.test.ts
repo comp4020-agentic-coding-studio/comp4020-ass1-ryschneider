@@ -66,7 +66,7 @@ describe("gouraud vs phong on a curved surface", () => {
       2;
 
     // The straight-ahead normal at the midpoint lights more brightly (facing the light
-    // dead-on) than the average of the two tilted endpoint colors — this gap is exactly
+    // dead-on) than the average of the two tilted endpoint colors: this gap is exactly
     // the banding Gouraud shading introduces and Phong avoids.
     expect(r).toBeGreaterThan(gouraudMidColor);
   });

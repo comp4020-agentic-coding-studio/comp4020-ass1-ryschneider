@@ -5,7 +5,7 @@ import { mountMatrixView } from "../matrix-view";
 
 /**
  * Wires stage 3's orbit-camera sliders. Any interaction snaps `viewEngaged`
- * true (see actions.ts's setViewParam) — before that, View stays the
+ * true (see actions.ts's setViewParam); before that, View stays the
  * identity matrix, since an orbit camera at azimuth/elevation/distance 0 is
  * degenerate (eye coincides with target).
  */

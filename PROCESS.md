@@ -16,7 +16,7 @@ reveal/engagement ratchets that make "everything stays live" true are new.
    top of it.** Stage 1 claims a table vertex is rendered "directly to
    pixels," but that's really an ordinary orthographic matrix
    (`l=0,r=W,b=H,t=0`) whose swapped top/bottom cancels the Y-flip
-   `ndcToScreen` always applies — a detail that's easy to get backwards and
+   `ndcToScreen` always applies, a detail that's easy to get backwards and
    have "work" anyway for one test case. Rather than trust that by
    inspection, I wrote the numeric pin first: a vertex at `(10, 20, 0)` must
    land at screen pixel `(10, 20)` to float precision, committed alongside
@@ -28,7 +28,7 @@ reveal/engagement ratchets that make "everything stays live" true are new.
 
 2. **A screenshot said "uniform flat color everywhere," and the instinct was
    to start editing `shading.ts`.** Before touching the lighting code I read
-   `pipeline.ts` and `shading.ts` end to end and the math was right — a fixed
+   `pipeline.ts` and `shading.ts` end to end and the math was right: a fixed
    light direction dot-producted against differently-rotated face normals
    can't coincidentally produce one color across a whole cube and a
    triangle. The actual cause was outside the code: a stale, never-reloaded
@@ -58,19 +58,19 @@ reveal/engagement ratchets that make "everything stays live" true are new.
 4. **A dead end the acceptance checklist wouldn't have caught.** Testing
    resize-mid-interaction in a real browser, I clicked stage 2's Perspective
    radio directly (not via the "load example" button) and the canvas went
-   solid black — no error, no test failure, nothing in `pnpm check`. Reading
+   solid black, no error, no test failure, nothing in `pnpm check`. Reading
    `pipeline.ts`, the cause was structural: an identity view means the
    camera coincides with the table's `z=0` vertices, so the perspective
    divide (`w = -z`) hits exactly zero and every vertex fails the `clip.w <=
    0` check. That's the same degeneracy the plan had already named for
-   `orbitView(0,0,0)` — perspective without a positioned camera has no
-   sensible default, same as an orbit camera with itself as its own target
-   — so the fix extends the existing view-engagement ratchet rather than
+   `orbitView(0,0,0)`: perspective without a positioned camera has no
+   sensible default, same as an orbit camera with itself as its own target,
+   so the fix extends the existing view-engagement ratchet rather than
    inventing a new mechanism: choosing perspective now engages the view with
    its already-sensible defaults if it isn't engaged yet
    ([`a95f2c4`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass1-ryschneider/commit/a95f2c4)).
-   Found by using the deployed-shaped artefact the way a grader would —
-   clicking a control in isolation — not by re-running the automated suite.
+   Found by using the deployed-shaped artefact the way a grader would,
+   clicking a control in isolation, not by re-running the automated suite.
 
 ## Before you ship
 

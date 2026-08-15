@@ -8,7 +8,7 @@ viewports --- 1920×1080 (desktop) and 390×844 (phone) --- and both count in
 full, so make that artefact good at both and use the checks below to know
 whether it is.
 
-What you're building this week — the spec — is published on the course website,
+What you're building this week, the spec, is published on the course website,
 and this repo's name tells you which deliverable it is. Run the course plugin's
 **start** skill at the start of each week: it pulls the right spec from the
 course API, carries your harness forward from last week, and helps you turn the

@@ -17,7 +17,7 @@
       <p class="intro">
         Every vertex on screen is the output of one formula:
         <code>screen = viewport(Projection &times; View &times; Model &times; vertex)</code>. Each stage below
-        turns one more part of that formula from an identity default into something you can edit &mdash; and every
+        turns one more part of that formula from an identity default into something you can edit, and every
         earlier control keeps working as you go.
       </p>
 
@@ -29,7 +29,7 @@
       <aside class="stage-panels" aria-label="Stages">
         <section class="stage" data-stage="1">
           <details data-stage-details="1" open>
-            <summary>Stage 1 &mdash; Screen space</summary>
+            <summary>Stage 1: Screen space</summary>
             <div class="stage-body" data-mount="stage1">
               <div class="vertex-table-scroll">
                 <table data-testid="vertex-table">
@@ -65,7 +65,7 @@
 
         <section class="stage" data-stage="2" hidden>
           <details data-stage-details="2">
-            <summary>Stage 2 &mdash; Projection matrix</summary>
+            <summary>Stage 2: Projection matrix</summary>
             <div class="stage-body" data-mount="stage2">
               <fieldset>
                 <legend>Projection</legend>
@@ -85,7 +85,7 @@
 
         <section class="stage" data-stage="3" hidden>
           <details data-stage-details="3">
-            <summary>Stage 3 &mdash; View matrix</summary>
+            <summary>Stage 3: View matrix</summary>
             <div class="stage-body" data-mount="stage3">
               <p class="engage-indicator" data-testid="view-engage-indicator">Camera: not yet engaged (identity view)</p>
               <label>Azimuth<input type="range" data-field="azimuthDeg" min="-180" max="180" value="0" /></label>
@@ -99,7 +99,7 @@
 
         <section class="stage" data-stage="4" hidden>
           <details data-stage-details="4">
-            <summary>Stage 4 &mdash; Model matrix &amp; meshes</summary>
+            <summary>Stage 4: Model matrix &amp; meshes</summary>
             <div class="stage-body" data-mount="stage4">
               <label>
                 Add a mesh
@@ -128,7 +128,7 @@
 
         <section class="stage" data-stage="5" hidden>
           <details data-stage-details="5">
-            <summary>Stage 5 &mdash; Color &amp; blending</summary>
+            <summary>Stage 5: Color &amp; blending</summary>
             <div class="stage-body" data-mount="stage5">
               <label>Mesh color<input type="color" data-field="mesh-color" value="#ffffff" /></label>
               <ul class="vertex-color-list" data-mount="vertex-colors"></ul>
@@ -143,7 +143,7 @@
 
         <section class="stage" data-stage="6" hidden>
           <details data-stage-details="6">
-            <summary>Stage 6 &mdash; Ambient &amp; diffuse lighting</summary>
+            <summary>Stage 6: Ambient &amp; diffuse lighting</summary>
             <div class="stage-body" data-mount="stage6">
               <p class="engage-indicator" data-testid="material-engage-indicator">Lighting: off (raw vertex colors)</p>
               <label>Ambient<input type="range" data-field="ambient" min="0" max="1" step="0.01" value="0.3" /></label>
@@ -161,7 +161,7 @@
 
         <section class="stage" data-stage="7" hidden>
           <details data-stage-details="7">
-            <summary>Stage 7 &mdash; Specular lighting</summary>
+            <summary>Stage 7: Specular lighting</summary>
             <div class="stage-body" data-mount="stage7">
               <label>Specular<input type="range" data-field="specular" min="0" max="1" step="0.01" value="0" /></label>
               <label>Shininess<input type="range" data-field="shininess" min="1" max="128" value="32" /></label>

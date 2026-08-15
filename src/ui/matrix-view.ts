@@ -4,7 +4,7 @@ import type { Store } from "../state/store";
 const PULSE_MS = 400;
 
 function formatCell(value: number): string {
-  return Number.isFinite(value) ? value.toFixed(2) : "—";
+  return Number.isFinite(value) ? value.toFixed(2) : "n/a";
 }
 
 /**

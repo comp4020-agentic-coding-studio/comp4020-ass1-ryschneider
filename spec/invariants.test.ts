@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 // The invariants run against the BUILT site, so they check what actually
 // ships, not the source. Run `pnpm build` first (the `check` script does).
-// These hold for any good website, whatever the week's brief asks — the
+// These hold for any good website, whatever the week's brief asks: the
 // week-specific contracts live in your own spec/*.test.ts alongside this file.
 const DIST = resolve("dist");
 

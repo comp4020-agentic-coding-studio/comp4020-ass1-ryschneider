@@ -1,7 +1,7 @@
 # The spec
 
-Every deliverable's spec — what the markers consider when they judge whether
-your work matches what was required — is published on the course website, and
+Every deliverable's spec (what the markers consider when they judge whether
+your work matches what was required) is published on the course website, and
 this repo's name tells you which one applies: the course API maps repo prefixes
 to deliverables, and the `start` course skill walks your agent through pulling
 the right one. Read the spec on the site first; it's the contract.
@@ -19,17 +19,17 @@ what actually ships. Keep them green; don't delete them.
 ## A worked example (yours to replace)
 
 `starter.test.ts` shows the shape of a spec test: it checks the starter page's
-intro hook. It's a worked example, not part of the always-on contract — replace
+intro hook. It's a worked example, not part of the always-on contract: replace
 or delete it when you replace the starter page. A starter implementation detail
 is not a universal invariant.
 
 ## Your spec tests (yours to write)
 
 Turning the week's published spec into tests is your work, not the template's.
-Some spec lines are mechanically checkable — assert those here, in your own test
+Some spec lines are mechanically checkable: assert those here, in your own test
 file alongside the invariants (any `spec/*.test.ts` runs with `pnpm check`).
 Some lines only a person can judge; leave those to the crit. Write tests for the
-**contracts** — what the page must do, not how you built it — so the tests
+**contracts**, what the page must do, not how you built it, so the tests
 survive a change of approach, or of stack.
 
 A green suite here is backpressure, not a mark: your tutor verifies the live

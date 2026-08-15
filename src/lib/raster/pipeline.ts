@@ -111,7 +111,7 @@ function shadeFnFor(state: SceneState, light: Light): ShadeFn {
 /**
  * Renders every mesh in `state.meshes` into one shared framebuffer, in the
  * same pipeline formula from stage 1 onward: screen = viewport(toNdc(
- * Projection * View * Model * vertex)). Stages never branch this math — only
+ * Projection * View * Model * vertex)). Stages never branch this math: only
  * the default parameter values (identity Model/View, canvas-matched ortho
  * Projection) and which controls are visible change.
  */

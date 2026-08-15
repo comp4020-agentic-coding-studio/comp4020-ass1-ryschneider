@@ -9,7 +9,7 @@
 // deliverable prefix (repo = <repoPrefix>-<handle>), and the course API says
 // which of that prefix's deliverables is current this week. No local state.
 // If the API can't be reached the reflection check is skipped with a warning
-// rather than failing — a network blip must never block a ship at the cutoff.
+// rather than failing: a network blip must never block a ship at the cutoff.
 import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
@@ -54,7 +54,7 @@ export function repoName(): string | undefined {
 
 // Which of this repo's deliverables is current: the latest one whose teaching
 // week has started, else the first still to come. An assessment outranks a
-// crit in a shared week — the retro crit reads the assignment's reflection.
+// crit in a shared week: the retro crit reads the assignment's reflection.
 export function currentDeliverable(
   payload: Payload,
   repo: string,
@@ -93,7 +93,7 @@ async function main(): Promise<void> {
   };
 
   if (!existsSync("CLAUDE.md")) {
-    fail("no CLAUDE.md in the repo root — the harness is part of what's marked");
+    fail("no CLAUDE.md in the repo root, the harness is part of what's marked");
   }
 
   const reflections = existsSync("reflections")
@@ -105,7 +105,7 @@ async function main(): Promise<void> {
 
   const repo = repoName();
   if (!repo) {
-    skip("no origin remote to name this repo — skipping the current-reflection check");
+    skip("no origin remote to name this repo, skipping the current-reflection check");
   } else {
     let payload: Payload | undefined;
     try {
@@ -113,19 +113,19 @@ async function main(): Promise<void> {
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       payload = (await response.json()) as Payload;
     } catch {
-      skip(`couldn't reach the course API — skipping the current-reflection check (${API_URL})`);
+      skip(`couldn't reach the course API, skipping the current-reflection check (${API_URL})`);
     }
     if (payload) {
       const deliverable = currentDeliverable(payload, repo, todayIn(payload.timezone));
       if (!deliverable) {
-        skip(`${repo} doesn't carry a course repo prefix — skipping the current-reflection check`);
+        skip(`${repo} doesn't carry a course repo prefix, skipping the current-reflection check`);
       } else {
         const expected = reflectionFor(deliverable);
         if (reflections.includes(expected)) {
           console.log(`✓ reflections/${expected}: current deliverable entry (${deliverable.slug})`);
         } else {
           fail(
-            `current reflection is missing — the marker reads reflections/${expected} for ${deliverable.slug}`,
+            `current reflection is missing: the marker reads reflections/${expected} for ${deliverable.slug}`,
           );
         }
       }
@@ -141,7 +141,7 @@ async function main(): Promise<void> {
 
   if (src.includes("TEMPLATE:")) {
     fail(
-      "PROCESS.md still contains the template comment — replace the boilerplate with your own overview",
+      "PROCESS.md still contains the template comment, replace the boilerplate with your own overview",
     );
   }
 
@@ -151,7 +151,7 @@ async function main(): Promise<void> {
   }
 
   if (shas.size === 0) {
-    fail("no commit citations found — cite each moment as [`<sha>`](<commit or compare URL>)");
+    fail("no commit citations found, cite each moment as [`<sha>`](<commit or compare URL>)");
   }
 
   for (const sha of shas) {
@@ -165,7 +165,7 @@ async function main(): Promise<void> {
   }
 
   // Images are deliberately not checked. Whether one renders is visible the
-  // moment you look at PROCESS.md on GitHub, which is where it's read — unlike a
+  // moment you look at PROCESS.md on GitHub, which is where it's read, unlike a
   // citation whose SHA doesn't resolve, which looks perfectly fine rendered.
   // This check covers what you can't see by looking; the rest is on you.
 

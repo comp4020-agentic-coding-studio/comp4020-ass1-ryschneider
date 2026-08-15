@@ -5,7 +5,7 @@ import { defineConfig } from "vite";
 // Every .html file in the repo is a page and a build entry, so a multi-page
 // hand-written site needs no build config: add pages, link them, ship.
 // (Vite's default would build only the root index.html and silently drop the
-// rest from dist/ — fine locally, 404s deployed.)
+// rest from dist/: fine locally, 404s deployed.)
 const SKIP = new Set(["node_modules", "dist", "spec", "scripts", "reflections"]);
 
 function htmlEntries(dir = "."): string[] {

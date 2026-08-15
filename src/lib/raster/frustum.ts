@@ -18,7 +18,7 @@ export function cameraBasis(eye: Vec3, target: Vec3, up: Vec3 = vec3(0, 1, 0)): 
 
 /**
  * The four world-space corners (top-left, top-right, bottom-right, bottom-left) of the camera's
- * view cross-section at `distance` along its forward axis — used to draw a frustum wireframe.
+ * view cross-section at `distance` along its forward axis, used to draw a frustum wireframe.
  */
 export function frustumCorners(
   basis: CameraBasis,
