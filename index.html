@@ -38,7 +38,7 @@
               <fieldset data-group="primitive">
                 <legend>
                   Primitive mode
-                  <span class="hint-icon" tabindex="0" title="Controls how the vertex table is rendered: as points, line segments, or filled triangles">?</span>
+                  <span class="hint-icon" tabindex="0" title="Controls how the vertex table is rendered: as points, line segments, or filled triangles. The stripe beside each row shows which vertices are grouped into one primitive together; dimmed rows are extra and not yet part of one">?</span>
                 </legend>
                 <button type="button" data-value="points" aria-pressed="true">Points</button>
                 <button type="button" data-value="lines" aria-pressed="false">Lines</button>
@@ -98,10 +98,10 @@
               <label>
                 <input type="checkbox" data-field="drag-to-rotate" checked />
                 Drag to rotate
-                <span class="hint-icon" tabindex="0" title="Dragging the canvas orbits the camera (updates azimuth/elevation below)">?</span>
+                <span class="hint-icon" tabindex="0" title="Dragging the canvas orbits the camera (updates yaw/pitch below)">?</span>
               </label>
-              <label>Azimuth<input type="range" data-field="azimuthDeg" min="-180" max="180" value="0" /></label>
-              <label>Elevation<input type="range" data-field="elevationDeg" min="-89" max="89" value="20" /></label>
+              <label>Yaw<input type="range" data-field="yawDeg" min="-180" max="180" value="0" /></label>
+              <label>Pitch<input type="range" data-field="pitchDeg" min="-89" max="89" value="20" /></label>
               <label>Distance<input type="range" data-field="distance" min="0.25" max="15" step="0.05" value="3" /></label>
               <div class="matrix-mount" data-mount="stage3-matrix"></div>
               <div class="frustum-mount" data-mount="stage3-frustum"></div>

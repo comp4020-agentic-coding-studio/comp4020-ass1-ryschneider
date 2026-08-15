@@ -143,11 +143,11 @@ describe("setViewParam", () => {
     const store = createStore(createInitialState());
 
     for (let i = 0; i < 7; i++) {
-      setViewParam(store, { azimuthDeg: i });
+      setViewParam(store, { yawDeg: i });
       expect(store.get().progress.revealed[3]).toBe(false);
     }
 
-    setViewParam(store, { azimuthDeg: 7 });
+    setViewParam(store, { yawDeg: 7 });
     expect(store.get().progress.revealed[3]).toBe(true);
   });
 });

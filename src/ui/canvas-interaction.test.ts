@@ -2,24 +2,24 @@ import { describe, expect, it } from "vitest";
 import { dragToOrbit, scrollZoomOrthographic, scrollZoomPerspective } from "./canvas-interaction";
 
 describe("dragToOrbit", () => {
-  it("wraps azimuth cyclically past the +180 seam", () => {
-    const { azimuthDeg } = dragToOrbit(0.9, 0, 170, 0);
+  it("wraps yaw cyclically past the +180 seam", () => {
+    const { yawDeg } = dragToOrbit(0.9, 0, 170, 0);
     // 170 + 0.9*360 = 494 -> wraps to 494 - 360 = 134
-    expect(azimuthDeg).toBeCloseTo(134, 5);
+    expect(yawDeg).toBeCloseTo(134, 5);
   });
 
-  it("wraps azimuth cyclically past the -180 seam", () => {
-    const { azimuthDeg } = dragToOrbit(-0.9, 0, -170, 0);
-    expect(azimuthDeg).toBeCloseTo(-134, 5);
+  it("wraps yaw cyclically past the -180 seam", () => {
+    const { yawDeg } = dragToOrbit(-0.9, 0, -170, 0);
+    expect(yawDeg).toBeCloseTo(-134, 5);
   });
 
-  it("clamps elevation at the poles instead of wrapping", () => {
-    expect(dragToOrbit(0, -1, 0, 85).elevationDeg).toBe(89);
-    expect(dragToOrbit(0, 1, 0, -85).elevationDeg).toBe(-89);
+  it("clamps pitch at the poles instead of wrapping", () => {
+    expect(dragToOrbit(0, -1, 0, 85).pitchDeg).toBe(89);
+    expect(dragToOrbit(0, 1, 0, -85).pitchDeg).toBe(-89);
   });
 
-  it("leaves azimuth/elevation unchanged for a zero-delta drag", () => {
-    expect(dragToOrbit(0, 0, 42, -17)).toEqual({ azimuthDeg: 42, elevationDeg: -17 });
+  it("leaves yaw/pitch unchanged for a zero-delta drag", () => {
+    expect(dragToOrbit(0, 0, 42, -17)).toEqual({ yawDeg: 42, pitchDeg: -17 });
   });
 });
 

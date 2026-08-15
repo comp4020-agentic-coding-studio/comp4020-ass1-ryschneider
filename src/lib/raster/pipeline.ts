@@ -91,7 +91,7 @@ export function screenFractionToWorldXY(state: SceneState, xFraction: number, yF
 /** Exported so stage 3's matrix-view panel can compute the same view matrix renderScene uses. */
 export function buildView(state: SceneState): Mat4 {
   if (!state.viewEngaged) return identity();
-  return orbitView(deg2rad(state.view.azimuthDeg), deg2rad(state.view.elevationDeg), state.view.distance, state.view.target);
+  return orbitView(deg2rad(state.view.yawDeg), deg2rad(state.view.pitchDeg), state.view.distance, state.view.target);
 }
 
 export interface SceneBounds {

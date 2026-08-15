@@ -1,10 +1,34 @@
 import { addTableRowAt, clearPreviewVertex, setPreviewVertex, setTableRow } from "../../state/actions";
 import { screenFractionToWorldXY } from "../../lib/raster/pipeline";
+import { primitiveGroupSize } from "../../state/scene";
+import type { PrimitiveMode, RawVertexRow } from "../../state/scene";
 import type { Store } from "../../state/store";
 
 const ADD_LABEL = "Add vertex";
 const PLACING_LABEL = "Click to place";
 const FINISH_LABEL = "Finish placing vertices";
+
+/** How many distinct group colors styles.css defines (`.vertex-row-group-0` .. `-N`) -- colors repeat past this. */
+const GROUP_COLOR_COUNT = 6;
+
+/**
+ * Marks each row with which primitive it belongs to (a `data-primitive-group`
+ * index, cycling through styles.css's palette) so the table visually reads as
+ * "these N rows draw one point/line/triangle" -- without touching column
+ * layout. Rows past the last complete group (the remainder
+ * tableRowsToMeshFields drops) get `data-primitive-group="none"` instead, a
+ * dimmed "not part of a shape yet" look. Runs on every render(), since
+ * `state.primitive` can change independently of row shape.
+ */
+function applyRowGrouping(tbody: HTMLTableSectionElement, tableRows: RawVertexRow[], primitive: PrimitiveMode): void {
+  const groupSize = primitiveGroupSize(primitive);
+  const completeCount = Math.floor(tableRows.length / groupSize) * groupSize;
+  tableRows.forEach((row, i) => {
+    const tr = tbody.querySelector<HTMLTableRowElement>(`tr[data-row-id="${row.id}"]`);
+    if (!tr) return;
+    tr.dataset.primitiveGroup = i < completeCount ? String(Math.floor(i / groupSize) % GROUP_COLOR_COUNT) : "none";
+  });
+}
 
 /**
  * Renders `state.tableRows` into the `data-vertex-rows` tbody and wires edits
@@ -76,7 +100,7 @@ export function mountVertexTable(root: ParentNode, store: Store): void {
   let previousRowIds: string[] = [];
 
   function render(): void {
-    const { tableRows } = store.get();
+    const { tableRows, primitive } = store.get();
     const rowIds = tableRows.map((r) => r.id);
     const sameShape = rowIds.length === previousRowIds.length && rowIds.every((id, i) => id === previousRowIds[i]);
 
@@ -104,6 +128,7 @@ export function mountVertexTable(root: ParentNode, store: Store): void {
         tbody.append(tr);
       }
       previousRowIds = rowIds;
+      applyRowGrouping(tbody, tableRows, primitive);
       return;
     }
 
@@ -119,6 +144,7 @@ export function mountVertexTable(root: ParentNode, store: Store): void {
         if (axis && document.activeElement !== input) input.value = String(row[axis]);
       });
     }
+    applyRowGrouping(tbody, tableRows, primitive);
   }
 
   store.subscribe(render);

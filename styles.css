@@ -9,6 +9,14 @@
   --color-accent-strong: #2563eb;
   --color-highlight: #f97316;
   --color-highlight-strong: #ea580c;
+
+  /* Vertex-table row-grouping indicator (see vertex-table.ts's applyRowGrouping) -- one per primitive, cycling. */
+  --group-color-0: #3b82f6;
+  --group-color-1: #f97316;
+  --group-color-2: #22c55e;
+  --group-color-3: #a855f7;
+  --group-color-4: #eab308;
+  --group-color-5: #ec4899;
 }
 
 body {
@@ -326,6 +334,45 @@ table[data-testid="vertex-table"] {
 table[data-testid="vertex-table"] th,
 table[data-testid="vertex-table"] td {
   padding: 0.1rem 0.35rem;
+}
+
+/*
+ * Which rows draw one primitive together: an inset left stripe, colored per
+ * group and cycling through the palette above, on each row's first cell.
+ * box-shadow (not border) so the stripe never adds width or reflows the
+ * table. Rows past the last complete group -- extra vertices the current
+ * primitive mode can't yet use -- get no stripe and a dimmed row instead.
+ */
+table[data-testid="vertex-table"] tbody tr td:first-child {
+  box-shadow: inset 4px 0 0 transparent;
+}
+
+table[data-testid="vertex-table"] tbody tr[data-primitive-group="0"] td:first-child {
+  box-shadow: inset 4px 0 0 var(--group-color-0);
+}
+
+table[data-testid="vertex-table"] tbody tr[data-primitive-group="1"] td:first-child {
+  box-shadow: inset 4px 0 0 var(--group-color-1);
+}
+
+table[data-testid="vertex-table"] tbody tr[data-primitive-group="2"] td:first-child {
+  box-shadow: inset 4px 0 0 var(--group-color-2);
+}
+
+table[data-testid="vertex-table"] tbody tr[data-primitive-group="3"] td:first-child {
+  box-shadow: inset 4px 0 0 var(--group-color-3);
+}
+
+table[data-testid="vertex-table"] tbody tr[data-primitive-group="4"] td:first-child {
+  box-shadow: inset 4px 0 0 var(--group-color-4);
+}
+
+table[data-testid="vertex-table"] tbody tr[data-primitive-group="5"] td:first-child {
+  box-shadow: inset 4px 0 0 var(--group-color-5);
+}
+
+table[data-testid="vertex-table"] tbody tr[data-primitive-group="none"] {
+  opacity: 0.55;
 }
 
 table[data-testid="vertex-table"] input[type="number"],

@@ -158,7 +158,7 @@ describe("buildProjection: orthographic anchor", () => {
     state.aspectRatio = 1;
     state.primitive = "points";
     state.viewEngaged = true;
-    state.view = { azimuthDeg: 0, elevationDeg: 0, distance: 3, target: vec3(2, 5, -1) };
+    state.view = { yawDeg: 0, pitchDeg: 0, distance: 3, target: vec3(2, 5, -1) };
     state.meshes[0] = {
       ...state.meshes[0]!,
       positions: [vec3(2, 5, -1)],

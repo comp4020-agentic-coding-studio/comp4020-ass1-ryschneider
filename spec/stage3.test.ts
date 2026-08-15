@@ -16,7 +16,7 @@ describe("stage 3: view matrix", () => {
   it("becomes a real orbit view once viewEngaged flips true", () => {
     const state = createInitialState();
     state.viewEngaged = true;
-    state.view = { azimuthDeg: 30, elevationDeg: 20, distance: 5, target: state.view.target };
+    state.view = { yawDeg: 30, pitchDeg: 20, distance: 5, target: state.view.target };
 
     const view = buildView(state);
     expect(Array.from(view)).not.toEqual(Array.from(identity()));
@@ -27,10 +27,10 @@ describe("stage 3: structural markup (built dist/index.html)", () => {
   const dist = resolve("dist/index.html");
   const doc = new JSDOM(readFileSync(dist, "utf8")).window.document;
 
-  it("has a stage-3 panel with azimuth/elevation/distance controls, starting hidden", () => {
+  it("has a stage-3 panel with yaw/pitch/distance controls, starting hidden", () => {
     const stage3 = doc.querySelector('section[data-stage="3"]');
     expect(stage3?.hasAttribute("hidden")).toBe(true);
-    for (const field of ["azimuthDeg", "elevationDeg", "distance"]) {
+    for (const field of ["yawDeg", "pitchDeg", "distance"]) {
       expect(stage3?.querySelector(`[data-field="${field}"]`), `expected [data-field="${field}"]`).toBeTruthy();
     }
   });

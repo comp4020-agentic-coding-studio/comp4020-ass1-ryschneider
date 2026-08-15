@@ -180,7 +180,7 @@ function clamp(v: number, { min, max }: { min: number; max: number }): number {
 /**
  * Frames every current mesh in view, in whichever projection is active
  * (orthographic or perspective) -- keeps `projectionKind` and the camera's
- * azimuth/elevation as they are, only deriving `view.target`/`view.distance`
+ * yaw/pitch as they are, only deriving `view.target`/`view.distance`
  * (and the relevant projection's near/far or halfHeight) from content.
  * Engages the view unconditionally: `buildView` returns identity while
  * `!viewEngaged`, so target/distance would otherwise have no effect.

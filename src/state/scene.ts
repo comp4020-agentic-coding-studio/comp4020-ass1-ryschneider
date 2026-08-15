@@ -65,7 +65,7 @@ export interface SceneState {
   perspective: { fovYDeg: number; near: number; far: number };
   orthographic: { halfHeight: number; near: number; far: number; autoFit: boolean };
   viewEngaged: boolean;
-  view: { azimuthDeg: number; elevationDeg: number; distance: number; target: Vec3 };
+  view: { yawDeg: number; pitchDeg: number; distance: number; target: Vec3 };
   /** Counts setViewParam calls -- gates stage 4's reveal on a real amount of camera play, not one nudge. */
   viewInteractionCount: number;
   blend: BlendMode;
@@ -108,7 +108,7 @@ export function createInitialState(): SceneState {
     perspective: { fovYDeg: 60, near: 0.01, far: 10 },
     orthographic: { halfHeight: 0.5, near: -10, far: 10, autoFit: true },
     viewEngaged: false,
-    view: { azimuthDeg: 0, elevationDeg: 20, distance: 3, target: vec3(0.5, 0.5, 0) },
+    view: { yawDeg: 0, pitchDeg: 20, distance: 3, target: vec3(0.5, 0.5, 0) },
     viewInteractionCount: 0,
     blend: "linear",
     baseColor: vec3(1, 1, 1),
@@ -124,6 +124,13 @@ export function createInitialState(): SceneState {
     aspectRatio: 16 / 9,
     controls: { dragToRotate: true, scrollToZoom: true },
   };
+}
+
+/** How many consecutive vertex-table rows form one primitive: 1 for points, 2 for lines, 3 for triangles. */
+export function primitiveGroupSize(primitive: PrimitiveMode): number {
+  if (primitive === "triangles") return 3;
+  if (primitive === "lines") return 2;
+  return 1;
 }
 
 /**

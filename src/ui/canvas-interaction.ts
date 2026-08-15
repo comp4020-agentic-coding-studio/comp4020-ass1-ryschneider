@@ -1,16 +1,16 @@
 import { setOrthoParam, setViewParam } from "../state/actions";
 import type { Store } from "../state/store";
 
-const AZIMUTH_DEG_PER_FULL_WIDTH = 360;
-const ELEVATION_DEG_PER_FULL_HEIGHT = 180;
+const YAW_DEG_PER_FULL_WIDTH = 360;
+const PITCH_DEG_PER_FULL_HEIGHT = 180;
 const ZOOM_SENSITIVITY = 0.001;
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
-/** Wraps azimuth cyclically into [-180, 180) -- orbiting past the seam continues, it doesn't clamp. */
-function wrapAzimuth(deg: number): number {
+/** Wraps yaw cyclically into [-180, 180) -- orbiting past the seam continues, it doesn't clamp. */
+function wrapYaw(deg: number): number {
   return (((deg + 180) % 360) + 360) % 360 - 180;
 }
 
@@ -18,12 +18,12 @@ function wrapAzimuth(deg: number): number {
 export function dragToOrbit(
   dxFraction: number,
   dyFraction: number,
-  azimuthDeg: number,
-  elevationDeg: number,
-): { azimuthDeg: number; elevationDeg: number } {
+  yawDeg: number,
+  pitchDeg: number,
+): { yawDeg: number; pitchDeg: number } {
   return {
-    azimuthDeg: wrapAzimuth(azimuthDeg + dxFraction * AZIMUTH_DEG_PER_FULL_WIDTH),
-    elevationDeg: clamp(elevationDeg - dyFraction * ELEVATION_DEG_PER_FULL_HEIGHT, -89, 89),
+    yawDeg: wrapYaw(yawDeg + dxFraction * YAW_DEG_PER_FULL_WIDTH),
+    pitchDeg: clamp(pitchDeg - dyFraction * PITCH_DEG_PER_FULL_HEIGHT, -89, 89),
   };
 }
 
@@ -65,7 +65,7 @@ export function mountCanvasInteraction(canvas: HTMLCanvasElement, store: Store):
     lastY = event.clientY;
 
     const state = store.get();
-    setViewParam(store, dragToOrbit(dxFraction, dyFraction, state.view.azimuthDeg, state.view.elevationDeg));
+    setViewParam(store, dragToOrbit(dxFraction, dyFraction, state.view.yawDeg, state.view.pitchDeg));
   });
 
   canvas.addEventListener("pointerup", (event) => {
