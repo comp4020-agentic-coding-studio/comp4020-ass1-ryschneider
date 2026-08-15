@@ -50,6 +50,8 @@ export interface SceneState {
   meshes: MeshInstance[];
   activeMeshId: string;
   tableRows: RawVertexRow[];
+  /** The vertex being dragged into place before a click commits it to `tableRows`; never itself a table row. */
+  previewRow: RawVertexRow | null;
   primitive: PrimitiveMode;
   fill: FillMode;
   projectionKind: ProjectionKind;
@@ -86,6 +88,7 @@ export function createInitialState(): SceneState {
     meshes: [stage1Mesh],
     activeMeshId: STAGE1_TABLE_MESH_ID,
     tableRows,
+    previewRow: null,
     primitive,
     fill: "solid",
     projectionKind: "orthographic",

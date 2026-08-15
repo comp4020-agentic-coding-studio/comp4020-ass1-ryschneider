@@ -1,8 +1,8 @@
-import { addTableRowAt, setTableRow } from "../../state/actions";
+import { addTableRowAt, clearPreviewVertex, setPreviewVertex, setTableRow } from "../../state/actions";
 import type { Store } from "../../state/store";
 
 const ADD_LABEL = "Add vertex";
-const PLACING_LABEL = "Click the canvas to place it";
+const PLACING_LABEL = "Click to place";
 
 /**
  * Renders `state.tableRows` into the `data-vertex-rows` tbody and wires edits
@@ -26,17 +26,34 @@ export function mountVertexTable(root: ParentNode, store: Store): void {
     addButton.setAttribute("aria-pressed", String(placing));
     addButton.textContent = placing ? PLACING_LABEL : ADD_LABEL;
     canvas.style.cursor = placing ? "crosshair" : "";
+    if (!placing) clearPreviewVertex(store);
+  }
+
+  function normalizedPosition(event: MouseEvent): { x: number; y: number } {
+    const rect = canvas.getBoundingClientRect();
+    return { x: (event.clientX - rect.left) / rect.width, y: (event.clientY - rect.top) / rect.height };
   }
 
   addButton.addEventListener("click", () => setPlacing(!placing));
 
   canvas.addEventListener("click", (event) => {
     if (!placing) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = (event.clientX - rect.left) / rect.width;
-    const y = (event.clientY - rect.top) / rect.height;
+    const { x, y } = normalizedPosition(event);
     addTableRowAt(store, x, y);
     setPlacing(false);
+  });
+
+  // While armed, the in-progress vertex tracks the pointer so the user sees
+  // where it will land (and, once 2+ real vertices exist, the preview
+  // completes a live triangle/line) before the click that finalizes it.
+  canvas.addEventListener("pointermove", (event) => {
+    if (!placing) return;
+    const { x, y } = normalizedPosition(event);
+    setPreviewVertex(store, x, y);
+  });
+
+  canvas.addEventListener("pointerleave", () => {
+    if (placing) clearPreviewVertex(store);
   });
 
   window.addEventListener("keydown", (event) => {

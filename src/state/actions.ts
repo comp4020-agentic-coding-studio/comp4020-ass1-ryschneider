@@ -40,14 +40,24 @@ function withStage1Reveal(state: SceneState): Pick<SceneState, "progress"> {
   return stage1Ready(state) ? withReveal(state, 2) : { progress: state.progress };
 }
 
+/** Matches --color-highlight in styles.css, so the in-progress preview vertex visually reads as "not yet placed". */
+const PREVIEW_COLOR = vec3(0.976, 0.451, 0.098);
+
 function recomputeTableMesh(state: SceneState): MeshInstance {
   const table = state.meshes[0];
   if (!table) throw new Error("actions: meshes[0] (the stage-1 table) is missing");
+  const rows = state.previewRow ? [...state.tableRows, state.previewRow] : state.tableRows;
   return {
     ...table,
-    ...tableRowsToMeshFields(state.tableRows, state.primitive),
-    vertexColors: state.tableRows.map((_, i) => table.vertexColors[i] ?? vec3(1, 1, 1)),
+    ...tableRowsToMeshFields(rows, state.primitive),
+    vertexColors: rows.map((_, i) =>
+      state.previewRow && i === rows.length - 1 ? PREVIEW_COLOR : (table.vertexColors[i] ?? vec3(1, 1, 1)),
+    ),
   };
+}
+
+function round4(n: number): number {
+  return Math.round(n * 10000) / 10000;
 }
 
 let nextRowSeq = 0;
@@ -76,10 +86,29 @@ export function setTableRow(store: Store, rowId: string, patch: Partial<Pick<Raw
 /** Adds a vertex at the given normalized 0..1 position -- used by click-to-place on the canvas. */
 export function addTableRowAt(store: Store, x: number, y: number): void {
   store.update((state) => {
-    const tableRows = [...state.tableRows, { id: freshRowId(), x, y, z: 0 }];
-    const withRows = { ...state, tableRows };
+    const tableRows = [...state.tableRows, { id: freshRowId(), x: round4(x), y: round4(y), z: 0 }];
+    const withRows = { ...state, tableRows, previewRow: null };
     const meshes = [recomputeTableMesh(withRows), ...state.meshes.slice(1)];
     return { ...withRows, meshes, ...withStage1Reveal(withRows) };
+  });
+}
+
+/** Live-updates the in-progress vertex while placement is armed; never written to `tableRows`. */
+export function setPreviewVertex(store: Store, x: number, y: number): void {
+  store.update((state) => {
+    const withPreview = { ...state, previewRow: { id: "preview", x, y, z: 0 } };
+    const meshes = [recomputeTableMesh(withPreview), ...state.meshes.slice(1)];
+    return { ...withPreview, meshes };
+  });
+}
+
+/** Removes the in-progress preview vertex -- canvas leave, Escape, or re-clicking "Add vertex" to cancel. */
+export function clearPreviewVertex(store: Store): void {
+  store.update((state) => {
+    if (!state.previewRow) return state;
+    const withoutPreview = { ...state, previewRow: null };
+    const meshes = [recomputeTableMesh(withoutPreview), ...state.meshes.slice(1)];
+    return { ...withoutPreview, meshes };
   });
 }
 
