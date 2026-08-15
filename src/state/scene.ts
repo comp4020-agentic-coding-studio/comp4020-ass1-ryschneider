@@ -66,6 +66,8 @@ export interface SceneState {
   orthographic: { halfHeight: number; near: number; far: number; autoFit: boolean };
   viewEngaged: boolean;
   view: { azimuthDeg: number; elevationDeg: number; distance: number; target: Vec3 };
+  /** Counts setViewParam calls -- gates stage 4's reveal on a real amount of camera play, not one nudge. */
+  viewInteractionCount: number;
   blend: BlendMode;
   baseColor: Vec3;
   material: { ambient: number; diffuse: number; specular: number; shininess: number; enabled: boolean };
@@ -107,6 +109,7 @@ export function createInitialState(): SceneState {
     orthographic: { halfHeight: 0.5, near: -10, far: 10, autoFit: true },
     viewEngaged: false,
     view: { azimuthDeg: 0, elevationDeg: 20, distance: 3, target: vec3(0.5, 0.5, 0) },
+    viewInteractionCount: 0,
     blend: "linear",
     baseColor: vec3(1, 1, 1),
     // specular starts at 0, a non-degenerate point on its own continuous slider (unlike

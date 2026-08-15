@@ -28,10 +28,6 @@ function withReveal(state: SceneState, stageNumber: number): Pick<SceneState, "p
   return { progress: { revealed: revealStage(state.progress.revealed, stageNumber) } };
 }
 
-function withReveals(state: SceneState, ...stageNumbers: number[]): Pick<SceneState, "progress"> {
-  return { progress: { revealed: stageNumbers.reduce(revealStage, state.progress.revealed) } };
-}
-
 /** Stage 2 unlocks once the user has drawn an actual triangle: 3+ vertices, in Triangle mode. */
 function stage1Ready(state: SceneState): boolean {
   return state.tableRows.length >= 3 && state.primitive === "triangles";
@@ -206,7 +202,7 @@ export function fitEverythingIntoView(store: Store): void {
         viewEngaged: true,
         view: { ...state.view, target: center, distance },
         orthographic: { ...state.orthographic, halfHeight, near, far, autoFit: false },
-        ...withReveals(state, 3, 4),
+        ...withReveal(state, 3),
       };
     }
 
@@ -219,24 +215,31 @@ export function fitEverythingIntoView(store: Store): void {
       viewEngaged: true,
       view: { ...state.view, target: center, distance },
       perspective: { ...state.perspective, far },
-      ...withReveals(state, 3, 4),
+      ...withReveal(state, 3),
     };
   });
 }
 
 // --- Stage 3: view ---
 
+/** Number of separate setViewParam calls (slider nudges or canvas-drag steps) before stage 4 unlocks -- one nudge shouldn't reveal it, real play with the camera should. */
+const STAGE4_REVEAL_INTERACTIONS = 8;
+
 export function engageView(store: Store): void {
-  store.update((state) => ({ ...state, viewEngaged: true, ...withReveal(state, 4) }));
+  store.update((state) => ({ ...state, viewEngaged: true }));
 }
 
 export function setViewParam(store: Store, patch: Partial<SceneState["view"]>): void {
-  store.update((state) => ({
-    ...state,
-    viewEngaged: true,
-    view: { ...state.view, ...patch },
-    ...withReveal(state, 4),
-  }));
+  store.update((state) => {
+    const viewInteractionCount = state.viewInteractionCount + 1;
+    return {
+      ...state,
+      viewEngaged: true,
+      view: { ...state.view, ...patch },
+      viewInteractionCount,
+      ...(viewInteractionCount >= STAGE4_REVEAL_INTERACTIONS ? withReveal(state, 4) : {}),
+    };
+  });
 }
 
 // --- Canvas interaction toggles ---

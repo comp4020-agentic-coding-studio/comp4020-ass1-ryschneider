@@ -110,7 +110,7 @@ a {
 }
 
 .stage.stage-revealed {
-  animation: stage-reveal 1.4s ease;
+  animation: stage-reveal 3s ease;
 }
 
 @media (prefers-reduced-motion: reduce) {

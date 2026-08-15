@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { addTableRowAt, clearPreviewVertex, fitEverythingIntoView, setPreviewVertex, setPrimitiveMode, setProjectionKind } from "./actions";
+import {
+  addTableRowAt,
+  clearPreviewVertex,
+  fitEverythingIntoView,
+  setPreviewVertex,
+  setPrimitiveMode,
+  setProjectionKind,
+  setViewParam,
+} from "./actions";
 import { createInitialState } from "./scene";
 import { createStore } from "./store";
 import { buildProjection, buildView } from "../lib/raster/pipeline";
@@ -116,5 +124,30 @@ describe("fitEverythingIntoView", () => {
       expect(ndc.z).toBeGreaterThanOrEqual(-1);
       expect(ndc.z).toBeLessThanOrEqual(1);
     }
+  });
+
+  it("reveals stage 3 but not stage 4 on its own -- fitting the view isn't 'playing with the camera'", () => {
+    const store = createStore(createInitialState());
+    withOffCenterMesh(store);
+
+    fitEverythingIntoView(store);
+
+    const revealed = store.get().progress.revealed;
+    expect(revealed[2]).toBe(true);
+    expect(revealed[3]).toBe(false);
+  });
+});
+
+describe("setViewParam", () => {
+  it("does not reveal stage 4 on a single nudge, but does once the camera has been genuinely played with", () => {
+    const store = createStore(createInitialState());
+
+    for (let i = 0; i < 7; i++) {
+      setViewParam(store, { azimuthDeg: i });
+      expect(store.get().progress.revealed[3]).toBe(false);
+    }
+
+    setViewParam(store, { azimuthDeg: 7 });
+    expect(store.get().progress.revealed[3]).toBe(true);
   });
 });
