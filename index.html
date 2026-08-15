@@ -33,7 +33,7 @@
             <div class="stage-body" data-mount="stage1">
               <div class="vertex-table-scroll">
                 <table data-testid="vertex-table">
-                  <caption>Vertex table (screen-space pixels)</caption>
+                  <caption>Vertex table (normalized 0..1 screen space)</caption>
                   <thead>
                     <tr>
                       <th scope="col">x</th>
@@ -73,9 +73,9 @@
                 <label><input type="radio" name="projection-kind" value="perspective" /> Perspective</label>
               </fieldset>
               <label>Field of view (Y)<input type="range" data-field="fovYDeg" min="10" max="150" value="60" /></label>
-              <label>Near<input type="range" data-field="near" min="0.1" max="50" step="0.1" value="1" /></label>
-              <label>Far<input type="range" data-field="far" min="100" max="10000" value="5000" /></label>
-              <label>Half-height (ortho zoom)<input type="range" data-field="halfHeight" min="20" max="2000" value="300" /></label>
+              <label>Near<input type="range" data-field="near" min="0.001" max="0.5" step="0.001" value="0.01" /></label>
+              <label>Far<input type="range" data-field="far" min="0.2" max="20" step="0.1" value="10" /></label>
+              <label>Half-height (ortho zoom)<input type="range" data-field="halfHeight" min="0.05" max="5" step="0.01" value="0.5" /></label>
               <button type="button" data-action="reset-projection">Reset</button>
               <button type="button" data-action="load-perspective-example">Load perspective example</button>
               <div class="matrix-mount" data-mount="stage2-matrix"></div>
@@ -90,7 +90,7 @@
               <p class="engage-indicator" data-testid="view-engage-indicator">Camera: not yet engaged (identity view)</p>
               <label>Azimuth<input type="range" data-field="azimuthDeg" min="-180" max="180" value="0" /></label>
               <label>Elevation<input type="range" data-field="elevationDeg" min="-89" max="89" value="20" /></label>
-              <label>Distance<input type="range" data-field="distance" min="50" max="3000" step="10" value="600" /></label>
+              <label>Distance<input type="range" data-field="distance" min="0.25" max="15" step="0.05" value="3" /></label>
               <div class="matrix-mount" data-mount="stage3-matrix"></div>
               <div class="frustum-mount" data-mount="stage3-frustum"></div>
             </div>
@@ -112,9 +112,9 @@
               <button type="button" data-action="add-mesh">Add</button>
               <ul class="mesh-list" data-mount="mesh-list"></ul>
 
-              <label>Translate X<input type="range" data-field="translateX" min="-800" max="800" step="5" value="0" /></label>
-              <label>Translate Y<input type="range" data-field="translateY" min="-800" max="800" step="5" value="0" /></label>
-              <label>Translate Z<input type="range" data-field="translateZ" min="-800" max="800" step="5" value="0" /></label>
+              <label>Translate X<input type="range" data-field="translateX" min="-5" max="5" step="0.05" value="0" /></label>
+              <label>Translate Y<input type="range" data-field="translateY" min="-5" max="5" step="0.05" value="0" /></label>
+              <label>Translate Z<input type="range" data-field="translateZ" min="-5" max="5" step="0.05" value="0" /></label>
               <label>Rotate X<input type="range" data-field="rotateX" min="-180" max="180" value="0" /></label>
               <label>Rotate Y<input type="range" data-field="rotateY" min="-180" max="180" value="0" /></label>
               <label>Rotate Z<input type="range" data-field="rotateZ" min="-180" max="180" value="0" /></label>
@@ -150,7 +150,7 @@
               <label>Diffuse<input type="range" data-field="diffuse" min="0" max="1" step="0.01" value="0.7" /></label>
               <label>Light azimuth<input type="range" data-field="lightAzimuthDeg" min="-180" max="180" value="-45" /></label>
               <label>Light elevation<input type="range" data-field="lightElevationDeg" min="-89" max="89" value="45" /></label>
-              <label>Light distance<input type="range" data-field="lightDistance" min="100" max="10000" step="10" value="5000" /></label>
+              <label>Light distance<input type="range" data-field="lightDistance" min="1" max="80" step="1" value="40" /></label>
               <fieldset>
                 <legend>Lighting rate</legend>
                 <label><input type="radio" name="lighting-rate" value="perVertex" checked /> Per-vertex (Gouraud)</label>
