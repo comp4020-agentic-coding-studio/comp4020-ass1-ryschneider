@@ -229,13 +229,16 @@ table[data-testid="vertex-table"] td {
   padding: 0.1rem 0.35rem;
 }
 
-table[data-testid="vertex-table"] input[type="number"] {
+table[data-testid="vertex-table"] input[type="number"],
+.stage-body fieldset input[type="number"] {
   width: 5rem;
   appearance: textfield;
 }
 
 table[data-testid="vertex-table"] input[type="number"]::-webkit-inner-spin-button,
-table[data-testid="vertex-table"] input[type="number"]::-webkit-outer-spin-button {
+table[data-testid="vertex-table"] input[type="number"]::-webkit-outer-spin-button,
+.stage-body fieldset input[type="number"]::-webkit-inner-spin-button,
+.stage-body fieldset input[type="number"]::-webkit-outer-spin-button {
   appearance: none;
   margin: 0;
 }
@@ -266,6 +269,22 @@ table[data-testid="vertex-table"] input[type="number"]::-webkit-outer-spin-butto
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+}
+
+.mesh-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.remove-mesh-button {
+  background: transparent;
+  border-color: var(--color-border);
+  padding: 0.2rem 0.5rem;
+}
+
+.remove-mesh-button:hover {
+  background: color-mix(in srgb, var(--color-highlight) 25%, transparent);
 }
 
 .engage-indicator {

@@ -1,10 +1,11 @@
 import { buildModelMatrix } from "../../lib/raster/pipeline";
 import { EXAMPLE_MESHES } from "../../lib/raster/meshes";
-import { addMesh, removeMesh, setActiveMesh, setMeshTransform } from "../../state/actions";
+import { addMesh, setMeshTransform } from "../../state/actions";
+import { activeMesh } from "../../state/scene";
 import type { MeshInstance } from "../../state/scene";
 import type { Store } from "../../state/store";
 import { mountMatrixView } from "../matrix-view";
-import { bindRangeField } from "./range-field";
+import { mountMeshSelector } from "./mesh-selector";
 
 type TransformField =
   | "translateX"
@@ -17,16 +18,9 @@ type TransformField =
   | "scaleY"
   | "scaleZ";
 
-function activeMesh(store: Store): MeshInstance {
-  const state = store.get();
-  const mesh = state.meshes.find((m) => m.id === state.activeMeshId) ?? state.meshes[0];
-  if (!mesh) throw new Error("mesh-list: no meshes in state");
-  return mesh;
-}
-
 /** Applies one transform-field edit to whichever mesh is currently active. */
 function applyTransformField(store: Store, field: TransformField, value: number): void {
-  const mesh = activeMesh(store);
+  const mesh = activeMesh(store.get());
   const t = mesh.transform;
   const patch =
     field === "translateX"
@@ -73,16 +67,6 @@ function fieldValue(mesh: MeshInstance, field: TransformField): number {
   }
 }
 
-function transformFieldOptions(field: TransformField): { hint: string; formatValue: (v: number) => string } {
-  if (field.startsWith("translate")) {
-    return { hint: `Translate along ${field.slice(-1)}`, formatValue: (v) => v.toFixed(2) };
-  }
-  if (field.startsWith("rotate")) {
-    return { hint: `Rotate around the ${field.slice(-1)} axis`, formatValue: (v) => `${v}°` };
-  }
-  return { hint: `Scale along ${field.slice(-1)}`, formatValue: (v) => `${v.toFixed(2)}×` };
-}
-
 const TRANSFORM_FIELDS: TransformField[] = [
   "translateX",
   "translateY",
@@ -112,49 +96,25 @@ export function mountMeshList(root: ParentNode, store: Store): void {
     throw new Error("mesh-list: expected markup not found");
   }
   const kindSelect: HTMLSelectElement = kindSelectEl;
-  const list: HTMLElement = listEl;
 
   addButton.addEventListener("click", () => {
     const kind = kindSelect.value as keyof typeof EXAMPLE_MESHES;
     addMesh(store, kind);
   });
 
-  const transformFields = new Map<TransformField, { sync: (value: number) => void }>();
+  mountMeshSelector(root, store, { mount: '[data-mount="mesh-list"]', removable: true });
+
   for (const [field, input] of transformInputs) {
-    transformFields.set(field, bindRangeField(input, transformFieldOptions(field)));
-    input.addEventListener("input", () => applyTransformField(store, field, Number(input.value)));
+    input.addEventListener("input", () => {
+      const value = Number(input.value);
+      if (Number.isFinite(value)) applyTransformField(store, field, value);
+    });
   }
 
   function render(): void {
-    const state = store.get();
-    list.innerHTML = "";
-
-    for (const mesh of state.meshes) {
-      const li = document.createElement("li");
-
-      const selectButton = document.createElement("button");
-      selectButton.type = "button";
-      selectButton.textContent = mesh.id === state.activeMeshId ? `● ${mesh.label}` : mesh.label;
-      selectButton.setAttribute("aria-pressed", String(mesh.id === state.activeMeshId));
-      selectButton.addEventListener("click", () => setActiveMesh(store, mesh.id));
-      li.append(selectButton);
-
-      if (!mesh.locked) {
-        const removeButton = document.createElement("button");
-        removeButton.type = "button";
-        removeButton.textContent = "Remove";
-        removeButton.addEventListener("click", () => removeMesh(store, mesh.id));
-        li.append(removeButton);
-      }
-
-      list.append(li);
-    }
-
-    const mesh = activeMesh(store);
+    const mesh = activeMesh(store.get());
     for (const [field, input] of transformInputs) {
-      const value = fieldValue(mesh, field);
-      if (document.activeElement !== input) input.value = String(value);
-      transformFields.get(field)?.sync(value);
+      if (document.activeElement !== input) input.value = String(fieldValue(mesh, field));
     }
   }
 
@@ -162,6 +122,6 @@ export function mountMeshList(root: ParentNode, store: Store): void {
   render();
 
   if (matrixMount) {
-    mountMatrixView(matrixMount, store, () => buildModelMatrix(activeMesh(store).transform), "Active mesh's model matrix");
+    mountMatrixView(matrixMount, store, () => buildModelMatrix(activeMesh(store.get()).transform), "Active mesh's model matrix");
   }
 }

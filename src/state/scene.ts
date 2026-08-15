@@ -39,6 +39,13 @@ export function identityTransform(): MeshTransform {
   return { translate: vec3(0, 0, 0), rotateDeg: vec3(0, 0, 0), scale: vec3(1, 1, 1) };
 }
 
+/** Resolves `state.activeMeshId`, falling back to the first mesh (there's always at least the stage-1 table). */
+export function activeMesh(state: SceneState): MeshInstance {
+  const mesh = state.meshes.find((m) => m.id === state.activeMeshId) ?? state.meshes[0];
+  if (!mesh) throw new Error("scene: no meshes in state");
+  return mesh;
+}
+
 export const STAGE1_TABLE_MESH_ID = "stage1-table";
 
 /** Stage 1 starts empty -- the user places their own vertices on the canvas. */

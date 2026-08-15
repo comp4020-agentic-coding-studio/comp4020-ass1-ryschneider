@@ -1,9 +1,11 @@
 import { setBlendMode, setMeshColor, setVertexColor } from "../../state/actions";
 import type { BlendMode, MeshInstance } from "../../state/scene";
+import { activeMesh } from "../../state/scene";
 import type { Store } from "../../state/store";
 import type { Vec3 } from "../../lib/raster/vec3";
 import { vec3 } from "../../lib/raster/vec3";
 import { mountButtonGroup } from "./button-group";
+import { mountMeshSelector } from "./mesh-selector";
 
 function hexToVec3(hex: string): Vec3 {
   const n = Number.parseInt(hex.slice(1), 16);
@@ -15,15 +17,11 @@ function vec3ToHex(color: Vec3): string {
   return `#${channel(color.x)}${channel(color.y)}${channel(color.z)}`;
 }
 
-function activeMesh(store: Store): MeshInstance {
-  const state = store.get();
-  const mesh = state.meshes.find((m) => m.id === state.activeMeshId) ?? state.meshes[0];
-  if (!mesh) throw new Error("color-controls: no meshes in state");
-  return mesh;
-}
-
-/** Wires stage 5: the active mesh's base color, its per-vertex colors, and the flat/linear blend toggle. */
+/** Wires stage 5: the mesh selector (shared with stage 4), the active mesh's base color, its
+ * per-vertex colors, and the flat/linear blend toggle. */
 export function mountColorControls(root: ParentNode, store: Store): void {
+  mountMeshSelector(root, store, { mount: '[data-mount="stage5-mesh-select"]', removable: false });
+
   const meshColorInput = root.querySelector<HTMLInputElement>('[data-field="mesh-color"]');
   const vertexList = root.querySelector<HTMLElement>('[data-mount="vertex-colors"]');
   const blendGroup = mountButtonGroup<BlendMode>(root, '[data-group="blend"]', (value) => setBlendMode(store, value));
@@ -35,7 +33,7 @@ export function mountColorControls(root: ParentNode, store: Store): void {
   const vertexListEl: HTMLElement = vertexList;
 
   meshColor.addEventListener("input", () => {
-    setMeshColor(store, activeMesh(store).id, hexToVec3(meshColor.value));
+    setMeshColor(store, activeMesh(store.get()).id, hexToVec3(meshColor.value));
   });
 
   let renderedMeshId: string | null = null;
@@ -61,7 +59,7 @@ export function mountColorControls(root: ParentNode, store: Store): void {
 
   function render(): void {
     const state = store.get();
-    const mesh = activeMesh(store);
+    const mesh = activeMesh(state);
 
     if (mesh.id !== renderedMeshId) rebuildVertexList(mesh);
     if (document.activeElement !== meshColor) meshColor.value = vec3ToHex(mesh.meshColor);

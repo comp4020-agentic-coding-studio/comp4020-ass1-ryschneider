@@ -83,7 +83,7 @@ describe("stage 4: structural markup (built dist/index.html)", () => {
     expect(stage4?.querySelector('[data-action="add-mesh"]')).toBeTruthy();
   });
 
-  it("has the 9 transform sliders (translate/rotate/scale x3)", () => {
+  it("has the 9 transform fields (translate/rotate/scale x3)", () => {
     for (const field of ["translateX", "translateY", "translateZ", "rotateX", "rotateY", "rotateZ", "scaleX", "scaleY", "scaleZ"]) {
       expect(doc.querySelector(`[data-field="${field}"]`), `expected [data-field="${field}"]`).toBeTruthy();
     }

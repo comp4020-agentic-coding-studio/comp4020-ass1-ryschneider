@@ -109,15 +109,36 @@
               <button type="button" data-action="add-mesh">Add</button>
               <ul class="mesh-list" data-mount="mesh-list"></ul>
 
-              <label>Translate X<input type="range" data-field="translateX" min="-5" max="5" step="0.05" value="0" /></label>
-              <label>Translate Y<input type="range" data-field="translateY" min="-5" max="5" step="0.05" value="0" /></label>
-              <label>Translate Z<input type="range" data-field="translateZ" min="-5" max="5" step="0.05" value="0" /></label>
-              <label>Rotate X<input type="range" data-field="rotateX" min="-180" max="180" value="0" /></label>
-              <label>Rotate Y<input type="range" data-field="rotateY" min="-180" max="180" value="0" /></label>
-              <label>Rotate Z<input type="range" data-field="rotateZ" min="-180" max="180" value="0" /></label>
-              <label>Scale X<input type="range" data-field="scaleX" min="0.1" max="4" step="0.1" value="1" /></label>
-              <label>Scale Y<input type="range" data-field="scaleY" min="0.1" max="4" step="0.1" value="1" /></label>
-              <label>Scale Z<input type="range" data-field="scaleZ" min="0.1" max="4" step="0.1" value="1" /></label>
+              <fieldset>
+                <legend>
+                  Translate
+                  <span class="hint-icon" tabindex="0" title="Position offset along each axis">?</span>
+                </legend>
+                <label>X<input type="number" step="0.05" data-field="translateX" value="0" /></label>
+                <label>Y<input type="number" step="0.05" data-field="translateY" value="0" /></label>
+                <label>Z<input type="number" step="0.05" data-field="translateZ" value="0" /></label>
+              </fieldset>
+
+              <fieldset>
+                <legend>
+                  Rotate
+                  <span class="hint-icon" tabindex="0" title="Rotation around each axis, in degrees">?</span>
+                </legend>
+                <label>X<input type="number" step="1" data-field="rotateX" value="0" /></label>
+                <label>Y<input type="number" step="1" data-field="rotateY" value="0" /></label>
+                <label>Z<input type="number" step="1" data-field="rotateZ" value="0" /></label>
+              </fieldset>
+
+              <fieldset>
+                <legend>
+                  Scale
+                  <span class="hint-icon" tabindex="0" title="Scale factor along each axis (1 = unchanged)">?</span>
+                </legend>
+                <label>X<input type="number" step="0.1" data-field="scaleX" value="1" /></label>
+                <label>Y<input type="number" step="0.1" data-field="scaleY" value="1" /></label>
+                <label>Z<input type="number" step="0.1" data-field="scaleZ" value="1" /></label>
+              </fieldset>
+
               <div class="matrix-mount" data-mount="stage4-matrix"></div>
             </div>
           </details>
@@ -127,6 +148,11 @@
           <details data-stage-details="5">
             <summary>Stage 5: Color &amp; blending</summary>
             <div class="stage-body" data-mount="stage5">
+              <p>
+                Editing colors for the selected mesh
+                <span class="hint-icon" tabindex="0" title="Selecting a mesh here also selects it in stage 4, and vice versa">?</span>
+              </p>
+              <ul class="mesh-list" data-mount="stage5-mesh-select"></ul>
               <label>Mesh color<input type="color" data-field="mesh-color" value="#ffffff" /></label>
               <ul class="vertex-color-list" data-mount="vertex-colors"></ul>
               <fieldset data-group="blend">
