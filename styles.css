@@ -172,19 +172,58 @@ button[aria-pressed="true"]:hover {
 }
 
 .hint-icon {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.1rem;
-  height: 1.1rem;
+  width: 0.85rem;
+  height: 0.85rem;
   flex: none;
   border-radius: 50%;
   border: 1px solid var(--color-border);
   background: color-mix(in srgb, var(--color-accent) 15%, transparent);
   color: var(--color-text);
-  font-size: 0.75rem;
+  font-size: 0.6rem;
   line-height: 1;
   cursor: help;
+}
+
+.hint-tooltip {
+  position: absolute;
+  bottom: calc(100% + 0.35rem);
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 16rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.375rem;
+  background: var(--color-panel);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  font-size: 0.75rem;
+  line-height: 1.3;
+  font-weight: normal;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.1s ease;
+  z-index: 20;
+}
+
+label:hover .hint-tooltip,
+label:focus-within .hint-tooltip,
+legend:hover .hint-tooltip,
+legend:focus-within .hint-tooltip,
+p:hover .hint-tooltip,
+p:focus-within .hint-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hint-tooltip {
+    transition: none;
+  }
 }
 
 .matrix-mount {

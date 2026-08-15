@@ -9,6 +9,7 @@ import { mountVertexTable } from "./src/ui/controls/vertex-table";
 import { mountViewControls } from "./src/ui/controls/view-controls";
 import { mountRenderLoop } from "./src/ui/render-loop";
 import { mountStagePanels } from "./src/ui/stage-panel";
+import { enhanceStaticHintIcons } from "./src/ui/hint";
 import { createInitialState } from "./src/state/scene";
 import { createStore } from "./src/state/store";
 
@@ -28,3 +29,4 @@ mountViewControls(document, store);
 mountMeshList(document, store);
 mountColorControls(document, store);
 mountLightingControls(document, store);
+enhanceStaticHintIcons(document);

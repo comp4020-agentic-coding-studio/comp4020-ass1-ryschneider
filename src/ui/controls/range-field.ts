@@ -24,8 +24,8 @@ export function bindRangeField(input: HTMLInputElement, options?: RangeFieldOpti
     output.textContent = formatValue(value);
   }
 
+  if (options?.hint) input.insertAdjacentElement("beforebegin", createHintIcon(options.hint));
   input.insertAdjacentElement("afterend", output);
-  if (options?.hint) output.insertAdjacentElement("afterend", createHintIcon(options.hint));
   input.addEventListener("input", () => update(Number(input.value)));
   update(Number(input.value));
 
