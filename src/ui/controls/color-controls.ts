@@ -44,12 +44,13 @@ export function mountColorControls(root: ParentNode, store: Store): void {
     vertexInputs = mesh.vertexColors.map((color, i) => {
       const li = document.createElement("li");
       const label = document.createElement("label");
-      label.textContent = `Vertex ${i} `;
+      const span = document.createElement("span");
+      span.textContent = `V${i}`;
       const input = document.createElement("input");
       input.type = "color";
       input.value = vec3ToHex(color);
       input.addEventListener("input", () => setVertexColor(store, mesh.id, i, hexToVec3(input.value)));
-      label.append(input);
+      label.append(span, input);
       li.append(label);
       vertexListEl.append(li);
       return input;
