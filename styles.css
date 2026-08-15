@@ -1,5 +1,14 @@
 :root {
-  color-scheme: light dark;
+  color-scheme: dark;
+
+  --color-bg: #0b1020;
+  --color-panel: rgb(15 23 42 / 88%);
+  --color-border: rgb(59 130 246 / 35%);
+  --color-text: #e5e9f2;
+  --color-accent: #3b82f6;
+  --color-accent-strong: #2563eb;
+  --color-highlight: #f97316;
+  --color-highlight-strong: #ea580c;
 }
 
 body {
@@ -7,18 +16,17 @@ body {
   padding: 0 1rem 2rem;
   font-family: system-ui, sans-serif;
   line-height: 1.5;
+  background: var(--color-bg);
+  color: var(--color-text);
+  accent-color: var(--color-accent);
 }
 
-header {
-  padding: 1rem;
-  position: relative;
-  z-index: 1;
-  background: color-mix(in srgb, Canvas 85%, transparent);
-  backdrop-filter: blur(8px);
+nav[aria-label="Primary"] {
+  margin: 0;
 }
 
 a {
-  color: #0b5fff;
+  color: var(--color-accent);
 }
 
 .visually-hidden {
@@ -30,33 +38,34 @@ a {
   white-space: nowrap;
 }
 
+.skip-link {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.skip-link:focus {
+  position: fixed;
+  top: 0.5rem;
+  left: 0.5rem;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip-path: none;
+  white-space: normal;
+  padding: 0.5rem 1rem;
+  background: var(--color-accent);
+  color: #fff;
+  border-radius: 0.375rem;
+  z-index: 100;
+}
+
 .app-shell {
   max-width: 90rem;
   margin: 0 auto;
-}
-
-.intro {
-  max-width: 60rem;
-  position: relative;
-  z-index: 1;
-  background: color-mix(in srgb, Canvas 85%, transparent);
-  backdrop-filter: blur(8px);
-  border-radius: 0.5rem;
-  padding: 0.5rem 0.75rem;
-}
-
-main.app-shell > h1 {
-  position: relative;
-  z-index: 1;
-  background: color-mix(in srgb, Canvas 85%, transparent);
-  backdrop-filter: blur(8px);
-  border-radius: 0.5rem;
-  width: fit-content;
-  padding: 0.25rem 0.75rem;
-}
-
-.intro code {
-  white-space: normal;
 }
 
 #scene-canvas {
@@ -64,20 +73,8 @@ main.app-shell > h1 {
   inset: 0;
   width: 100vw;
   height: 100vh;
-  background: #18181c;
+  background: var(--color-bg);
   z-index: 0;
-}
-
-.canvas-caption {
-  position: relative;
-  z-index: 1;
-  width: fit-content;
-  margin: 0;
-  font-size: 0.9rem;
-  opacity: 0.8;
-  background: color-mix(in srgb, Canvas 85%, transparent);
-  border-radius: 0.5rem;
-  padding: 0.25rem 0.75rem;
 }
 
 .stage-panels {
@@ -90,17 +87,50 @@ main.app-shell > h1 {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  background: color-mix(in srgb, Canvas 85%, transparent);
-  backdrop-filter: blur(12px);
-  border-radius: 0.75rem;
-  padding: 1rem;
   z-index: 10;
+}
+
+.stage {
+  background: var(--color-panel);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  padding: 0 0.9rem;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 35%);
 }
 
 .stage summary {
   cursor: pointer;
   font-weight: 600;
   padding: 0.5rem 0;
+  color: var(--color-accent);
+}
+
+button {
+  font: inherit;
+  color: #fff;
+  background: var(--color-accent);
+  border: 1px solid transparent;
+  border-radius: 0.375rem;
+  padding: 0.35rem 0.85rem;
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--color-accent-strong);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button[aria-pressed="true"] {
+  background: var(--color-highlight);
+}
+
+button[aria-pressed="true"]:hover {
+  background: var(--color-highlight-strong);
 }
 
 .stage-body {
@@ -160,7 +190,7 @@ main.app-shell > h1 {
 }
 
 .matrix-grid td.cell-changed {
-  background-color: color-mix(in srgb, #0b5fff 35%, transparent);
+  background-color: color-mix(in srgb, var(--color-highlight) 40%, transparent);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -180,17 +210,24 @@ table[data-testid="vertex-table"] {
 
 table[data-testid="vertex-table"] th,
 table[data-testid="vertex-table"] td {
-  padding: 0.25rem 0.5rem;
+  padding: 0.1rem 0.35rem;
 }
 
 table[data-testid="vertex-table"] input[type="number"] {
   width: 5rem;
+  appearance: textfield;
+}
+
+table[data-testid="vertex-table"] input[type="number"]::-webkit-inner-spin-button,
+table[data-testid="vertex-table"] input[type="number"]::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
 }
 
 @media (width < 480px) {
   table[data-testid="vertex-table"] th,
   table[data-testid="vertex-table"] td {
-    padding: 0.25rem 0.3rem;
+    padding: 0.1rem 0.2rem;
   }
 
   table[data-testid="vertex-table"] input[type="number"] {

@@ -44,6 +44,7 @@ describe("stage 7: specular highlight is spatially localized", () => {
     state.material.enabled = true;
     state.light = { azimuthDeg: 20, elevationDeg: 30, distance: 5000 / 400, color: vec3(1, 1, 1) };
     state.aspectRatio = 1;
+    state.primitive = "triangles";
     state.orthographic.halfHeight = 4 / 400;
 
     const reference = vec3(198 / 400, 198 / 400, -5 / 400);

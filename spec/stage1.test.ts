@@ -4,7 +4,8 @@ import { JSDOM } from "jsdom";
 import { describe, expect, it } from "vitest";
 import { createFramebuffer } from "../src/lib/raster/framebuffer";
 import { renderScene } from "../src/lib/raster/pipeline";
-import { createInitialState } from "../src/state/scene";
+import { vec3 } from "../src/lib/raster/vec3";
+import { createInitialState, tableRowsToMeshFields } from "../src/state/scene";
 
 describe("stage 1: identity passthrough", () => {
   it("renders a normalized table vertex at its exact screen-space pixel", () => {
@@ -17,10 +18,25 @@ describe("stage 1: identity passthrough", () => {
     // independent of width/height individually.
     state.aspectRatio = 1;
 
+    // Stage 1 starts empty, so a triangle is placed by hand here to exercise
+    // the identity-passthrough math, independent of the UI's own default state.
+    const tableRows = [
+      { id: "r0", x: 80 / 720, y: 90 / 400, z: 0 },
+      { id: "r1", x: 280 / 720, y: 90 / 400, z: 0 },
+      { id: "r2", x: 180 / 720, y: 230 / 400, z: 0 },
+    ];
+    state.tableRows = tableRows;
+    state.primitive = "triangles";
+    state.meshes[0] = {
+      ...state.meshes[0]!,
+      ...tableRowsToMeshFields(tableRows, "triangles"),
+      vertexColors: tableRows.map(() => vec3(1, 1, 1)),
+    };
+
     const fb = createFramebuffer(width, height);
     renderScene(state, fb, [0, 0, 0]);
 
-    const [row] = state.tableRows;
+    const [row] = tableRows;
     const x = Math.round(row.x * width);
     const y = Math.round(row.y * height);
     const i = (y * width + x) * 4;

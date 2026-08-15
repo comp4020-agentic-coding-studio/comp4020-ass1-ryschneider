@@ -35,6 +35,7 @@ describe("stage 4: multi-mesh rendering", () => {
     // canvas-matched box is exactly [0,1]x[0,1] and a normalized (nx, ny)
     // mesh vertex lands at pixel (nx*400, ny*400).
     state.aspectRatio = 1;
+    state.primitive = "triangles";
     const left = triangleMesh("left", [vec3(0, 0, 0), vec3(0.125, 0, 0), vec3(0.0625, 0.125, 0)], 0, [1, 0, 0]);
     const right = triangleMesh("right", [vec3(0.75, 0, 0), vec3(0.875, 0, 0), vec3(0.8125, 0.125, 0)], 0, [0, 0, 1]);
     state.meshes = [left, right];
@@ -51,6 +52,7 @@ describe("stage 4: multi-mesh rendering", () => {
   it("occludes correctly via the z-test regardless of draw order", () => {
     const state = createInitialState();
     state.aspectRatio = 1;
+    state.primitive = "triangles";
     const near = bigTriangle("near", -3, [1, 0, 0]);
     const far = bigTriangle("far", 3, [0, 0, 1]);
 

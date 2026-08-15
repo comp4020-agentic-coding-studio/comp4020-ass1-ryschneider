@@ -31,6 +31,15 @@ function withReveals(state: SceneState, ...stageNumbers: number[]): Pick<SceneSt
   return { progress: { revealed: stageNumbers.reduce(revealStage, state.progress.revealed) } };
 }
 
+/** Stage 2 unlocks once the user has drawn an actual triangle: 3+ vertices, in Triangle mode. */
+function stage1Ready(state: SceneState): boolean {
+  return state.tableRows.length >= 3 && state.primitive === "triangles";
+}
+
+function withStage1Reveal(state: SceneState): Pick<SceneState, "progress"> {
+  return stage1Ready(state) ? withReveal(state, 2) : { progress: state.progress };
+}
+
 function recomputeTableMesh(state: SceneState): MeshInstance {
   const table = state.meshes[0];
   if (!table) throw new Error("actions: meshes[0] (the stage-1 table) is missing");
@@ -60,26 +69,17 @@ export function setTableRow(store: Store, rowId: string, patch: Partial<Pick<Raw
     const tableRows = state.tableRows.map((row) => (row.id === rowId ? { ...row, ...patch } : row));
     const withRows = { ...state, tableRows };
     const meshes = [recomputeTableMesh(withRows), ...state.meshes.slice(1)];
-    return { ...withRows, meshes, ...withReveal(state, 2) };
+    return { ...withRows, meshes, ...withStage1Reveal(withRows) };
   });
 }
 
-export function addTableRow(store: Store): void {
+/** Adds a vertex at the given normalized 0..1 position -- used by click-to-place on the canvas. */
+export function addTableRowAt(store: Store, x: number, y: number): void {
   store.update((state) => {
-    const tableRows = [...state.tableRows, { id: freshRowId(), x: 0.5, y: 0.5, z: 0 }];
+    const tableRows = [...state.tableRows, { id: freshRowId(), x, y, z: 0 }];
     const withRows = { ...state, tableRows };
     const meshes = [recomputeTableMesh(withRows), ...state.meshes.slice(1)];
-    return { ...withRows, meshes, ...withReveal(state, 2) };
-  });
-}
-
-export function removeTableRow(store: Store, rowId: string): void {
-  store.update((state) => {
-    if (state.tableRows.length <= 1) return state;
-    const tableRows = state.tableRows.filter((row) => row.id !== rowId);
-    const withRows = { ...state, tableRows };
-    const meshes = [recomputeTableMesh(withRows), ...state.meshes.slice(1)];
-    return { ...withRows, meshes, ...withReveal(state, 2) };
+    return { ...withRows, meshes, ...withStage1Reveal(withRows) };
   });
 }
 
@@ -87,12 +87,15 @@ export function setPrimitiveMode(store: Store, primitive: PrimitiveMode): void {
   store.update((state) => {
     const withMode = { ...state, primitive };
     const meshes = [recomputeTableMesh(withMode), ...state.meshes.slice(1)];
-    return { ...withMode, meshes, ...withReveal(state, 2) };
+    return { ...withMode, meshes, ...withStage1Reveal(withMode) };
   });
 }
 
 export function setFillMode(store: Store, fill: FillMode): void {
-  store.update((state) => ({ ...state, fill, ...withReveal(state, 2) }));
+  store.update((state) => {
+    const withMode = { ...state, fill };
+    return { ...withMode, ...withStage1Reveal(withMode) };
+  });
 }
 
 // --- Stage 2: projection ---

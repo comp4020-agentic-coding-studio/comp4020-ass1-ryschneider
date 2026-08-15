@@ -42,6 +42,7 @@ describe("stage 6: ambient & diffuse lighting", () => {
     const state = createInitialState();
     state.material.enabled = false;
     state.aspectRatio = 1;
+    state.primitive = "triangles";
     state.meshes = [flatTriangle(vec3(0, 0, 1), vec3(1, 0, 0))];
 
     expect(samplePixel(state)).toEqual([255, 0, 0]);
@@ -51,6 +52,7 @@ describe("stage 6: ambient & diffuse lighting", () => {
     const base = createInitialState();
     base.material = { ambient: 0.4, diffuse: 0, specular: 0, shininess: 32, enabled: true };
     base.aspectRatio = 1;
+    base.primitive = "triangles";
     const mesh = flatTriangle(vec3(0, 0, 1), vec3(1, 1, 1));
 
     const stateA: SceneState = {
@@ -78,6 +80,7 @@ describe("stage 6: ambient & diffuse lighting", () => {
     const lightPos = orbitEye(deg2rad(base.light.azimuthDeg), deg2rad(base.light.elevationDeg), base.light.distance);
     const lightDir = normalize(sub(lightPos, vec3(25 / 400, 50 / 3 / 400, -5 / 400)));
     base.aspectRatio = 1;
+    base.primitive = "triangles";
     const mesh = flatTriangle(lightDir, vec3(1, 1, 1));
 
     const dim: SceneState = { ...base, material: { ambient: 0.1, diffuse: 0.2, specular: 0, shininess: 32, enabled: true }, meshes: [mesh] };

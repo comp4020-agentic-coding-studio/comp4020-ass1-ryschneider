@@ -30,6 +30,7 @@ describe("stage 5: color & blending", () => {
     state.material.enabled = false;
     state.blend = "flat";
     state.aspectRatio = 1;
+    state.primitive = "triangles";
     state.meshes = [triColorTriangle()];
 
     const fb = createFramebuffer(400, 400);
@@ -46,6 +47,7 @@ describe("stage 5: color & blending", () => {
     state.material.enabled = false;
     state.blend = "linear";
     state.aspectRatio = 1;
+    state.primitive = "triangles";
     state.meshes = [triColorTriangle()];
 
     const fb = createFramebuffer(400, 400);

@@ -7,51 +7,39 @@
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <header>
-      <nav aria-label="Primary">
-        <a href="./">Home</a>
-      </nav>
-    </header>
+    <nav aria-label="Primary">
+      <a class="skip-link" href="#stage-panels">Skip to stage controls</a>
+    </nav>
     <main class="app-shell">
-      <h1>Build a rasterizer, one matrix at a time</h1>
-      <p class="intro">
-        Every vertex on screen is the output of one formula:
-        <code>screen = viewport(Projection &times; View &times; Model &times; vertex)</code>. Each stage below
-        turns one more part of that formula from an identity default into something you can edit, and every
-        earlier control keeps working as you go.
-      </p>
+      <h1 class="visually-hidden">Build a rasterizer, one matrix at a time</h1>
 
-      <div class="stage-view">
-        <canvas id="scene-canvas" aria-label="Rendered scene"></canvas>
-        <p class="canvas-caption" data-testid="canvas-caption">Stage 1: vertices rendered directly to pixels.</p>
-      </div>
+      <canvas id="scene-canvas" aria-label="Rendered scene"></canvas>
 
-      <aside class="stage-panels" aria-label="Stages">
+      <aside class="stage-panels" aria-label="Stages" id="stage-panels">
         <section class="stage" data-stage="1">
           <details data-stage-details="1" open>
             <summary>Stage 1: Screen space</summary>
             <div class="stage-body" data-mount="stage1">
               <div class="vertex-table-scroll">
                 <table data-testid="vertex-table">
-                  <caption>Vertex table (normalized 0..1 screen space)</caption>
+                  <caption>Vertices</caption>
                   <thead>
                     <tr>
                       <th scope="col">x</th>
                       <th scope="col">y</th>
                       <th scope="col">z</th>
-                      <th scope="col"><span class="visually-hidden">Remove</span></th>
                     </tr>
                   </thead>
                   <tbody data-vertex-rows></tbody>
                 </table>
               </div>
-              <button type="button" data-action="add-row">Add vertex</button>
+              <button type="button" data-action="add-row" aria-pressed="false">Add vertex</button>
 
               <fieldset>
                 <legend>Primitive mode</legend>
-                <label><input type="radio" name="primitive" value="points" /> Points</label>
+                <label><input type="radio" name="primitive" value="points" checked /> Points</label>
                 <label><input type="radio" name="primitive" value="lines" /> Lines</label>
-                <label><input type="radio" name="primitive" value="triangles" checked /> Triangles</label>
+                <label><input type="radio" name="primitive" value="triangles" /> Triangles</label>
               </fieldset>
 
               <fieldset>

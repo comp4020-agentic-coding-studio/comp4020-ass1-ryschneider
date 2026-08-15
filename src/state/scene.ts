@@ -41,17 +41,9 @@ export function identityTransform(): MeshTransform {
 
 export const STAGE1_TABLE_MESH_ID = "stage1-table";
 
-/**
- * Normalized 0..1, top-left origin -- proportioned from the old screen-pixel
- * triangle (an 720x400 reference canvas) so it keeps the same shape, kept
- * small so it stays fully visible on a narrow phone canvas too.
- */
+/** Stage 1 starts empty -- the user places their own vertices on the canvas. */
 export function defaultTableRows(): RawVertexRow[] {
-  return [
-    { id: "r0", x: 80 / 720, y: 90 / 400, z: 0 },
-    { id: "r1", x: 280 / 720, y: 90 / 400, z: 0 },
-    { id: "r2", x: 180 / 720, y: 230 / 400, z: 0 },
-  ];
+  return [];
 }
 
 export interface SceneState {
@@ -78,11 +70,12 @@ export interface SceneState {
 /** meshes[0] is the stage-1 table, derived from tableRows via {@link tableRowsToMesh}. */
 export function createInitialState(): SceneState {
   const tableRows = defaultTableRows();
+  const primitive: PrimitiveMode = "points";
   const stage1Mesh: MeshInstance = {
     id: STAGE1_TABLE_MESH_ID,
     label: "Table",
     kind: "table",
-    ...tableRowsToMeshFields(tableRows, "triangles"),
+    ...tableRowsToMeshFields(tableRows, primitive),
     vertexColors: tableRows.map(() => vec3(1, 1, 1)),
     meshColor: vec3(1, 1, 1),
     transform: identityTransform(),
@@ -93,7 +86,7 @@ export function createInitialState(): SceneState {
     meshes: [stage1Mesh],
     activeMeshId: STAGE1_TABLE_MESH_ID,
     tableRows,
-    primitive: "triangles",
+    primitive,
     fill: "solid",
     projectionKind: "orthographic",
     // near/far/distance are unit-scale, matching the table's normalized 0..1
