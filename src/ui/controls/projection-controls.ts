@@ -2,7 +2,6 @@ import { buildProjection } from "../../lib/raster/pipeline";
 import {
   fitEverythingIntoView,
   resetProjection,
-  setDragToRotate,
   setOrthoParam,
   setPerspectiveParam,
   setProjectionKind,
@@ -25,32 +24,27 @@ export function mountProjectionControls(root: ParentNode, store: Store): void {
   const halfHeightInputEl = root.querySelector<HTMLInputElement>('[data-field="halfHeight"]');
   const resetButton = root.querySelector<HTMLButtonElement>('[data-action="reset-projection"]');
   const presetButton = root.querySelector<HTMLButtonElement>('[data-action="fit-view"]');
-  const dragToRotateInputEl = root.querySelector<HTMLInputElement>('[data-field="drag-to-rotate"]');
   const scrollToZoomInputEl = root.querySelector<HTMLInputElement>('[data-field="scroll-to-zoom"]');
   const matrixMount = root.querySelector<HTMLElement>('[data-mount="stage2-matrix"]');
 
-  if (
-    !fovInputEl ||
-    !nearInputEl ||
-    !farInputEl ||
-    !halfHeightInputEl ||
-    !resetButton ||
-    !presetButton ||
-    !dragToRotateInputEl ||
-    !scrollToZoomInputEl
-  ) {
+  if (!fovInputEl || !nearInputEl || !farInputEl || !halfHeightInputEl || !resetButton || !presetButton || !scrollToZoomInputEl) {
     throw new Error("projection-controls: expected markup not found");
   }
   const fovInput: HTMLInputElement = fovInputEl;
   const nearInput: HTMLInputElement = nearInputEl;
   const farInput: HTMLInputElement = farInputEl;
   const halfHeightInput: HTMLInputElement = halfHeightInputEl;
-  const dragToRotateInput: HTMLInputElement = dragToRotateInputEl;
   const scrollToZoomInput: HTMLInputElement = scrollToZoomInputEl;
 
   const fovField = bindRangeField(fovInput, { hint: "Vertical field of view", formatValue: (v) => `${v}°` });
-  const nearField = bindRangeField(nearInput, { hint: "Near clip plane distance", formatValue: (v) => v.toFixed(3) });
-  const farField = bindRangeField(farInput, { hint: "Far clip plane distance", formatValue: (v) => v.toFixed(1) });
+  const nearField = bindRangeField(nearInput, {
+    hint: "Anything closer to the camera than this is clipped from view",
+    formatValue: (v) => v.toFixed(3),
+  });
+  const farField = bindRangeField(farInput, {
+    hint: "Anything farther from the camera than this is clipped from view",
+    formatValue: (v) => v.toFixed(1),
+  });
   const halfHeightField = bindRangeField(halfHeightInput, {
     hint: "Half-height of the orthographic view box",
     formatValue: (v) => v.toFixed(2),
@@ -75,13 +69,11 @@ export function mountProjectionControls(root: ParentNode, store: Store): void {
   resetButton.addEventListener("click", () => resetProjection(store));
   presetButton.addEventListener("click", () => fitEverythingIntoView(store));
 
-  dragToRotateInput.addEventListener("change", () => setDragToRotate(store, dragToRotateInput.checked));
   scrollToZoomInput.addEventListener("change", () => setScrollToZoom(store, scrollToZoomInput.checked));
 
   function render(): void {
     const state = store.get();
     kindGroup.sync(state.projectionKind);
-    dragToRotateInput.checked = state.controls.dragToRotate;
     scrollToZoomInput.checked = state.controls.scrollToZoom;
 
     fovInput.value = String(state.perspective.fovYDeg);
