@@ -1,4 +1,5 @@
 import { mountCanvasHost } from "./src/ui/canvas-host";
+import { mountCanvasInteraction } from "./src/ui/canvas-interaction";
 import { mountColorControls } from "./src/ui/controls/color-controls";
 import { mountLightingControls } from "./src/ui/controls/lighting-controls";
 import { mountPrimitiveFillToggles } from "./src/ui/controls/primitive-fill-toggles";
@@ -18,6 +19,7 @@ if (!canvas) throw new Error("main: #scene-canvas not found");
 
 const host = mountCanvasHost(canvas, store);
 mountRenderLoop(host, store);
+mountCanvasInteraction(canvas, store);
 mountStagePanels(document, store);
 mountVertexTable(document, store);
 mountPrimitiveFillToggles(document, store);

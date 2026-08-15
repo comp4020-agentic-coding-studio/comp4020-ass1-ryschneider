@@ -197,6 +197,16 @@ export function setViewParam(store: Store, patch: Partial<SceneState["view"]>): 
   }));
 }
 
+// --- Canvas interaction toggles ---
+
+export function setDragToRotate(store: Store, dragToRotate: boolean): void {
+  store.update((state) => ({ ...state, controls: { ...state.controls, dragToRotate } }));
+}
+
+export function setScrollToZoom(store: Store, scrollToZoom: boolean): void {
+  store.update((state) => ({ ...state, controls: { ...state.controls, scrollToZoom } }));
+}
+
 // --- Stage 4: model / multi-mesh ---
 
 export function addMesh(store: Store, kind: keyof typeof EXAMPLE_MESHES): void {

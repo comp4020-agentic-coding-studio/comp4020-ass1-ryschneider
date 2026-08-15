@@ -74,6 +74,8 @@ export interface SceneState {
   progress: { revealed: boolean[] };
   /** width/height of the canvas, kept in sync by canvas-host.ts on resize. */
   aspectRatio: number;
+  /** Opt-in canvas gestures, both off by default so the canvas behaves as before until enabled. */
+  controls: { dragToRotate: boolean; scrollToZoom: boolean };
 }
 
 /** meshes[0] is the stage-1 table, derived from tableRows via {@link tableRowsToMesh}. */
@@ -118,6 +120,7 @@ export function createInitialState(): SceneState {
     lightingRate: "perVertex",
     progress: { revealed: [true, false, false, false, false, false, false] },
     aspectRatio: 16 / 9,
+    controls: { dragToRotate: false, scrollToZoom: false },
   };
 }
 
