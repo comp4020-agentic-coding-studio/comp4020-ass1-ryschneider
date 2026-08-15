@@ -4,7 +4,10 @@ import type { Store } from "../state/store";
  * Unhides `<section data-stage="n">` the first time `progress.revealed[n-1]`
  * flips true. Strict accordion: opening any stage's `<details>` closes every
  * other stage's `<details>`, unconditionally -- at most one stage is ever
- * open at a time.
+ * open at a time. Siblings are closed from a `click` listener on each
+ * `<summary>`, which runs before the browser applies the native toggle --
+ * closing on the later `toggle` event instead left a visible one-frame gap
+ * where both were open.
  */
 export function mountStagePanels(root: ParentNode, store: Store): void {
   const sections = Array.from(root.querySelectorAll<HTMLElement>("section.stage[data-stage]"));
@@ -13,8 +16,9 @@ export function mountStagePanels(root: ParentNode, store: Store): void {
     .filter((details): details is HTMLDetailsElement => details !== null);
 
   for (const details of detailsList) {
-    details.addEventListener("toggle", () => {
-      if (!details.open) return;
+    const summary = details.querySelector("summary");
+    summary?.addEventListener("click", () => {
+      if (details.open) return;
       for (const other of detailsList) {
         if (other !== details) other.open = false;
       }
