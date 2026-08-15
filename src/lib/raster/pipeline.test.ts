@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { createFramebuffer } from "./framebuffer";
-import { buildProjection, renderScene, screenFractionToWorldXY } from "./pipeline";
+import { buildProjection, computeSceneBounds, renderScene, screenFractionToWorldXY } from "./pipeline";
 import { ndcToScreen } from "./screen";
 import { toNdc } from "./projection";
 import { transformPoint } from "./mat4";
 import { vec3 } from "./vec3";
-import { createInitialState, tableRowsToMeshFields } from "../../state/scene";
+import { createInitialState, identityTransform, tableRowsToMeshFields } from "../../state/scene";
 
 /** Stage 1 starts empty, so tests exercising its rendering place a triangle by hand. */
 const TABLE_ROWS = [
@@ -130,5 +130,80 @@ describe("screenFractionToWorldXY", () => {
 
     expect(x).toBeCloseTo(0.3, 10);
     expect(y).toBeCloseTo(0.7, 10);
+  });
+});
+
+describe("buildProjection: orthographic anchor", () => {
+  it("anchors at world (0.5, 0.5) while the view is un-engaged, matching stage 1's canvas-center convention", () => {
+    const state = createInitialState();
+    state.aspectRatio = 1;
+    state.primitive = "points";
+    state.meshes[0] = {
+      ...state.meshes[0]!,
+      positions: [vec3(0.5, 0.5, 0)],
+      normals: [vec3(0, 0, 1)],
+      indices: [],
+      vertexColors: [vec3(1, 1, 1)],
+    };
+    const fb = createFramebuffer(100, 100);
+
+    renderScene(state, fb, [0, 0, 0]);
+
+    const index = (50 * fb.width + 50) * 4;
+    expect(fb.color[index]).toBe(255);
+  });
+
+  it("anchors at the engaged view's target (view-space origin), not (0.5, 0.5), once the view is engaged", () => {
+    const state = createInitialState();
+    state.aspectRatio = 1;
+    state.primitive = "points";
+    state.viewEngaged = true;
+    state.view = { azimuthDeg: 0, elevationDeg: 0, distance: 3, target: vec3(2, 5, -1) };
+    state.meshes[0] = {
+      ...state.meshes[0]!,
+      positions: [vec3(2, 5, -1)],
+      normals: [vec3(0, 0, 1)],
+      indices: [],
+      vertexColors: [vec3(1, 1, 1)],
+    };
+    const fb = createFramebuffer(100, 100);
+
+    renderScene(state, fb, [0, 0, 0]);
+
+    // A vertex placed exactly at the (arbitrary, off-(0.5,0.5)) view target
+    // must render at canvas center once the view is engaged.
+    const index = (50 * fb.width + 50) * 4;
+    expect(fb.color[index]).toBe(255);
+  });
+});
+
+describe("computeSceneBounds", () => {
+  it("returns the center/radius of a single mesh's positions, respecting its transform", () => {
+    const state = createInitialState();
+    state.meshes = [
+      {
+        ...state.meshes[0]!,
+        positions: [vec3(-1, -1, -1), vec3(1, 1, 1)],
+        transform: { ...identityTransform(), translate: vec3(10, 20, 30) },
+      },
+    ];
+
+    const { center, radius } = computeSceneBounds(state);
+
+    expect(center.x).toBeCloseTo(10, 10);
+    expect(center.y).toBeCloseTo(20, 10);
+    expect(center.z).toBeCloseTo(30, 10);
+    // Diagonal of the [-1,1]^3 box is 2*sqrt(3); radius is half that.
+    expect(radius).toBeCloseTo(Math.sqrt(3), 10);
+  });
+
+  it("falls back to stage 1's default unit-square center when there are no vertices to bound", () => {
+    const state = createInitialState();
+    state.meshes = [{ ...state.meshes[0]!, positions: [] }];
+
+    const { center, radius } = computeSceneBounds(state);
+
+    expect(center).toEqual(vec3(0.5, 0.5, 0));
+    expect(radius).toBe(0.5);
   });
 });

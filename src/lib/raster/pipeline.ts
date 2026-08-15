@@ -33,7 +33,8 @@ function toByte(channel: number): number {
   return Math.round(Math.max(0, Math.min(1, channel)) * 255);
 }
 
-function deg2rad(deg: number): number {
+/** Exported so actions.ts's fitEverythingIntoView can share this conversion rather than duplicate it. */
+export function deg2rad(deg: number): number {
   return (deg * Math.PI) / 180;
 }
 
@@ -47,12 +48,17 @@ export function buildModelMatrix(transform: MeshInstance["transform"]): Mat4 {
 }
 
 /**
- * A normalized 0..1, canvas-matched orthographic box by default: the box is
- * always centered at (0.5, 0.5) and corrected for `state.aspectRatio` (kept
- * in sync with the live canvas by canvas-host.ts), so mesh content never
- * looks stretched even though the box itself doesn't depend on actual pixel
- * dimensions -- those only enter the pipeline in the viewport step
- * (`ndcToScreen`).
+ * A normalized, canvas-matched orthographic box: `halfHeight` (corrected for
+ * `state.aspectRatio`, kept in sync with the live canvas by canvas-host.ts)
+ * around an anchor point, so mesh content never looks stretched even though
+ * the box itself doesn't depend on actual pixel dimensions -- those only
+ * enter the pipeline in the viewport step (`ndcToScreen`). The anchor is
+ * `(0.5, 0.5)` while the view is un-engaged (identity view, so view-space ==
+ * world-space, and world `(0.5, 0.5)` is stage 1's canvas-center convention),
+ * but `(0, 0)` once the view is engaged: `lookAt` maps the camera's
+ * `view.target` to view-space origin, not `(0.5, 0.5)`, so anchoring there
+ * instead keeps engaged-view orthographic content centered on its target
+ * rather than rendering ~0.5 units off-center.
  */
 export function buildProjection(state: SceneState): Mat4 {
   if (state.projectionKind === "perspective") {
@@ -61,7 +67,9 @@ export function buildProjection(state: SceneState): Mat4 {
   }
   const { halfHeight, near, far } = state.orthographic;
   const halfWidth = halfHeight * state.aspectRatio;
-  return orthographic(0.5 - halfWidth, 0.5 + halfWidth, 0.5 + halfHeight, 0.5 - halfHeight, near, far);
+  const cx = state.viewEngaged ? 0 : 0.5;
+  const cy = state.viewEngaged ? 0 : 0.5;
+  return orthographic(cx - halfWidth, cx + halfWidth, cy + halfHeight, cy - halfHeight, near, far);
 }
 
 /**
@@ -84,6 +92,49 @@ export function screenFractionToWorldXY(state: SceneState, xFraction: number, yF
 export function buildView(state: SceneState): Mat4 {
   if (!state.viewEngaged) return identity();
   return orbitView(deg2rad(state.view.azimuthDeg), deg2rad(state.view.elevationDeg), state.view.distance, state.view.target);
+}
+
+export interface SceneBounds {
+  center: Vec3;
+  radius: number;
+}
+
+/**
+ * World-space bounding sphere across every mesh's transformed vertices, used
+ * by fitEverythingIntoView (actions.ts) to frame all current content. Falls
+ * back to stage 1's own default unit-square scale when there are no vertices
+ * to bound (e.g. an empty stage-1 table); floors the radius so a single
+ * point (or coincident vertices) still yields a usable, non-degenerate fit.
+ */
+export function computeSceneBounds(state: SceneState): SceneBounds {
+  let minX = Infinity;
+  let minY = Infinity;
+  let minZ = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  let maxZ = -Infinity;
+
+  for (const mesh of state.meshes) {
+    const model = buildModelMatrix(mesh.transform);
+    for (const p of mesh.positions) {
+      const w = transformPoint(model, p);
+      minX = Math.min(minX, w.x);
+      maxX = Math.max(maxX, w.x);
+      minY = Math.min(minY, w.y);
+      maxY = Math.max(maxY, w.y);
+      minZ = Math.min(minZ, w.z);
+      maxZ = Math.max(maxZ, w.z);
+    }
+  }
+
+  if (!Number.isFinite(minX)) return { center: vec3(0.5, 0.5, 0), radius: 0.5 };
+
+  const center = vec3((minX + maxX) / 2, (minY + maxY) / 2, (minZ + maxZ) / 2);
+  const dx = maxX - minX;
+  const dy = maxY - minY;
+  const dz = maxZ - minZ;
+  const radius = Math.max(0.05, Math.sqrt(dx * dx + dy * dy + dz * dz) / 2);
+  return { center, radius };
 }
 
 function buildLight(state: SceneState, view: Mat4): Light {
