@@ -45,7 +45,9 @@ function showTooltip(icon: HTMLElement): void {
     window.innerWidth - tooltipRect.width - VIEWPORT_MARGIN,
   );
   const above = iconRect.top - tooltipRect.height - 8;
-  const top = above >= VIEWPORT_MARGIN ? above : iconRect.bottom + 8;
+  const maxTop = window.innerHeight - tooltipRect.height - VIEWPORT_MARGIN;
+  const fitsAbove = above >= VIEWPORT_MARGIN;
+  const top = Math.min(Math.max(VIEWPORT_MARGIN, fitsAbove ? above : iconRect.bottom + 8), maxTop);
   tooltip.style.left = `${left}px`;
   tooltip.style.top = `${top}px`;
 }
