@@ -8,12 +8,13 @@ export function mountLightingControls(root: ParentNode, store: Store): void {
   const diffuseInput = root.querySelector<HTMLInputElement>('[data-field="diffuse"]');
   const lightAzimuthInput = root.querySelector<HTMLInputElement>('[data-field="lightAzimuthDeg"]');
   const lightElevationInput = root.querySelector<HTMLInputElement>('[data-field="lightElevationDeg"]');
+  const lightDistanceInput = root.querySelector<HTMLInputElement>('[data-field="lightDistance"]');
   const rateInputs = Array.from(root.querySelectorAll<HTMLInputElement>('input[name="lighting-rate"]'));
   const engageIndicator = root.querySelector<HTMLElement>('[data-testid="material-engage-indicator"]');
   const specularInput = root.querySelector<HTMLInputElement>('[data-field="specular"]');
   const shininessInput = root.querySelector<HTMLInputElement>('[data-field="shininess"]');
 
-  if (!ambientInput || !diffuseInput || !lightAzimuthInput || !lightElevationInput || !engageIndicator) {
+  if (!ambientInput || !diffuseInput || !lightAzimuthInput || !lightElevationInput || !lightDistanceInput || !engageIndicator) {
     throw new Error("lighting-controls: expected stage-6 markup not found");
   }
   if (!specularInput || !shininessInput) {
@@ -23,6 +24,7 @@ export function mountLightingControls(root: ParentNode, store: Store): void {
   const diffuse: HTMLInputElement = diffuseInput;
   const lightAzimuth: HTMLInputElement = lightAzimuthInput;
   const lightElevation: HTMLInputElement = lightElevationInput;
+  const lightDistance: HTMLInputElement = lightDistanceInput;
   const indicator: HTMLElement = engageIndicator;
   const specular: HTMLInputElement = specularInput;
   const shininess: HTMLInputElement = shininessInput;
@@ -31,6 +33,7 @@ export function mountLightingControls(root: ParentNode, store: Store): void {
   diffuse.addEventListener("input", () => setMaterialParam(store, { diffuse: Number(diffuse.value) }));
   lightAzimuth.addEventListener("input", () => setLightParam(store, { azimuthDeg: Number(lightAzimuth.value) }));
   lightElevation.addEventListener("input", () => setLightParam(store, { elevationDeg: Number(lightElevation.value) }));
+  lightDistance.addEventListener("input", () => setLightParam(store, { distance: Number(lightDistance.value) }));
   specular.addEventListener("input", () => setMaterialParam(store, { specular: Number(specular.value) }));
   shininess.addEventListener("input", () => setMaterialParam(store, { shininess: Number(shininess.value) }));
 
@@ -46,6 +49,7 @@ export function mountLightingControls(root: ParentNode, store: Store): void {
     if (document.activeElement !== diffuse) diffuse.value = String(material.diffuse);
     if (document.activeElement !== lightAzimuth) lightAzimuth.value = String(light.azimuthDeg);
     if (document.activeElement !== lightElevation) lightElevation.value = String(light.elevationDeg);
+    if (document.activeElement !== lightDistance) lightDistance.value = String(light.distance);
     if (document.activeElement !== specular) specular.value = String(material.specular);
     if (document.activeElement !== shininess) shininess.value = String(material.shininess);
     for (const input of rateInputs) input.checked = input.value === lightingRate;

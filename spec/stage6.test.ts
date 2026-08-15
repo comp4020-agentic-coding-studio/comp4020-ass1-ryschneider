@@ -6,7 +6,7 @@ import { orbitEye } from "../src/lib/raster/camera";
 import { createFramebuffer } from "../src/lib/raster/framebuffer";
 import { renderScene } from "../src/lib/raster/pipeline";
 import type { Vec3 } from "../src/lib/raster/vec3";
-import { vec3 } from "../src/lib/raster/vec3";
+import { normalize, sub, vec3 } from "../src/lib/raster/vec3";
 import { createInitialState, identityTransform } from "../src/state/scene";
 import type { MeshInstance, SceneState } from "../src/state/scene";
 
@@ -53,8 +53,16 @@ describe("stage 6: ambient & diffuse lighting", () => {
     base.orthographic.halfHeight = 200;
     const mesh = flatTriangle(vec3(0, 0, 1), vec3(1, 1, 1));
 
-    const stateA: SceneState = { ...base, light: { azimuthDeg: 0, elevationDeg: 0, color: vec3(1, 1, 1) }, meshes: [mesh] };
-    const stateB: SceneState = { ...base, light: { azimuthDeg: 170, elevationDeg: -60, color: vec3(1, 1, 1) }, meshes: [mesh] };
+    const stateA: SceneState = {
+      ...base,
+      light: { azimuthDeg: 0, elevationDeg: 0, distance: base.light.distance, color: vec3(1, 1, 1) },
+      meshes: [mesh],
+    };
+    const stateB: SceneState = {
+      ...base,
+      light: { azimuthDeg: 170, elevationDeg: -60, distance: base.light.distance, color: vec3(1, 1, 1) },
+      meshes: [mesh],
+    };
 
     const pixelA = samplePixel(stateA);
     const pixelB = samplePixel(stateB);
@@ -65,7 +73,10 @@ describe("stage 6: ambient & diffuse lighting", () => {
   it("raising diffuse brightens a face turned toward the light", () => {
     const base = createInitialState();
     // Point the normal straight at the light so diffuseAmount is maxed regardless of diffuse's value.
-    const lightDir = orbitEye(deg2rad(base.light.azimuthDeg), deg2rad(base.light.elevationDeg), 1);
+    // The light sits far enough away (base.light.distance) that its direction barely varies across
+    // the small triangle below, so one representative surface point stands in for all three vertices.
+    const lightPos = orbitEye(deg2rad(base.light.azimuthDeg), deg2rad(base.light.elevationDeg), base.light.distance);
+    const lightDir = normalize(sub(lightPos, vec3(25, 50 / 3, -5)));
     base.orthographic.halfHeight = 200;
     const mesh = flatTriangle(lightDir, vec3(1, 1, 1));
 

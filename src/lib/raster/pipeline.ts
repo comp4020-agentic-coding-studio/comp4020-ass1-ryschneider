@@ -72,8 +72,9 @@ export function buildView(state: SceneState): Mat4 {
 }
 
 function buildLight(state: SceneState, view: Mat4): Light {
-  const worldDirection = orbitEye(deg2rad(state.light.azimuthDeg), deg2rad(state.light.elevationDeg), 1);
-  return { direction: transformDirection(view, worldDirection), color: state.light.color };
+  const worldPosition = orbitEye(deg2rad(state.light.azimuthDeg), deg2rad(state.light.elevationDeg), state.light.distance);
+  const viewPosition4 = transformPoint(view, worldPosition);
+  return { position: vec3(viewPosition4.x, viewPosition4.y, viewPosition4.z), color: state.light.color };
 }
 
 function vertexAttrs(state: SceneState, viewPos: Vec3, viewNormal: Vec3, baseColor: Vec3, light: Light): Attrs {
