@@ -1,4 +1,5 @@
 import { addTableRowAt, clearPreviewVertex, setPreviewVertex, setTableRow } from "../../state/actions";
+import { screenFractionToWorldXY } from "../../lib/raster/pipeline";
 import type { Store } from "../../state/store";
 
 const ADD_LABEL = "Add vertex";
@@ -31,7 +32,9 @@ export function mountVertexTable(root: ParentNode, store: Store): void {
 
   function normalizedPosition(event: MouseEvent): { x: number; y: number } {
     const rect = canvas.getBoundingClientRect();
-    return { x: (event.clientX - rect.left) / rect.width, y: (event.clientY - rect.top) / rect.height };
+    const xFraction = (event.clientX - rect.left) / rect.width;
+    const yFraction = (event.clientY - rect.top) / rect.height;
+    return screenFractionToWorldXY(store.get(), xFraction, yFraction);
   }
 
   addButton.addEventListener("click", () => setPlacing(!placing));
