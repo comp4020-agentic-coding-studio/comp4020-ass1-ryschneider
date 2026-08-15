@@ -69,7 +69,7 @@ export interface SceneState {
   blend: BlendMode;
   baseColor: Vec3;
   material: { ambient: number; diffuse: number; specular: number; shininess: number; enabled: boolean };
-  light: { azimuthDeg: number; elevationDeg: number; distance: number; color: Vec3 };
+  light: { azimuthDeg: number; elevationDeg: number; color: Vec3 };
   lightingRate: LightingRate;
   progress: { revealed: boolean[] };
   /** width/height of the canvas, kept in sync by canvas-host.ts on resize. */
@@ -113,10 +113,9 @@ export function createInitialState(): SceneState {
     // orbit view's eye-coincides-with-target singularity), so stage 6's ambient+diffuse-
     // only regime shows no highlight until the user actually drags stage 7's slider up.
     material: { ambient: 0.3, diffuse: 0.7, specular: 0, shininess: 32, enabled: false },
-    // A large default distance (well past the far plane) keeps the light reading as
-    // roughly directional out of the box; the light-distance slider is what lets a
-    // user drag it down to demonstrate point-light falloff-free positional character.
-    light: { azimuthDeg: -45, elevationDeg: 45, distance: 40, color: vec3(1, 1, 1) },
+    // A fixed direction rather than a position: the light shines uniformly from this
+    // azimuth/elevation with no falloff, independent of any surface's position.
+    light: { azimuthDeg: -45, elevationDeg: 45, color: vec3(1, 1, 1) },
     lightingRate: "perVertex",
     progress: { revealed: [true, false, false, false, false, false, false] },
     aspectRatio: 16 / 9,

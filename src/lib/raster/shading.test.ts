@@ -10,28 +10,25 @@ import type { Light, Material, ShadingVertex } from "./shading";
 import { vec3 } from "./vec3";
 
 const material: Material = { color: vec3(1, 1, 1), ambient: 0.1, diffuse: 0.7, specular: 0.5, shininess: 32 };
-// Far enough along +z that the direction from any surface point used below is ~(0, 0, 1),
-// matching the old direction-only light this test predates.
-const light: Light = { position: vec3(0, 0, 1000), color: vec3(1, 1, 1) };
-const surfacePos = vec3(0, 0, -5);
+const light: Light = { direction: vec3(0, 0, 1), color: vec3(1, 1, 1) };
 
 describe("computeLighting", () => {
   it("lights a surface facing the light more than one facing away", () => {
-    const towardLight = computeLighting(vec3(0, 0, 1), vec3(0, 0, 1), light, material, surfacePos);
-    const awayFromLight = computeLighting(vec3(0, 0, -1), vec3(0, 0, 1), light, material, surfacePos);
+    const towardLight = computeLighting(vec3(0, 0, 1), vec3(0, 0, 1), light, material);
+    const awayFromLight = computeLighting(vec3(0, 0, -1), vec3(0, 0, 1), light, material);
     expect(towardLight.x).toBeGreaterThan(awayFromLight.x);
   });
 
   it("never lights a surface below the material's ambient floor", () => {
-    const litAway = computeLighting(vec3(0, 1, 0), vec3(0, 0, 1), light, material, surfacePos);
+    const litAway = computeLighting(vec3(0, 1, 0), vec3(0, 0, 1), light, material);
     expect(litAway.x).toBeCloseTo(material.ambient * material.color.x);
   });
 
   it("adds a specular highlight when the view direction matches the reflection", () => {
     const dim: Material = { ...material, specular: 0 };
     const shiny: Material = { ...material, specular: 1 };
-    const withoutSpecular = computeLighting(vec3(0, 0, 1), vec3(0, 0, 1), light, dim, surfacePos);
-    const withSpecular = computeLighting(vec3(0, 0, 1), vec3(0, 0, 1), light, shiny, surfacePos);
+    const withoutSpecular = computeLighting(vec3(0, 0, 1), vec3(0, 0, 1), light, dim);
+    const withSpecular = computeLighting(vec3(0, 0, 1), vec3(0, 0, 1), light, shiny);
     expect(withSpecular.x).toBeGreaterThan(withoutSpecular.x);
   });
 });

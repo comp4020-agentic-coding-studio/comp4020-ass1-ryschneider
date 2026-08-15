@@ -10,7 +10,6 @@ export function mountLightingControls(root: ParentNode, store: Store): void {
   const diffuseInput = root.querySelector<HTMLInputElement>('[data-field="diffuse"]');
   const lightAzimuthInput = root.querySelector<HTMLInputElement>('[data-field="lightAzimuthDeg"]');
   const lightElevationInput = root.querySelector<HTMLInputElement>('[data-field="lightElevationDeg"]');
-  const lightDistanceInput = root.querySelector<HTMLInputElement>('[data-field="lightDistance"]');
   const rateGroup = mountButtonGroup<LightingRate>(root, '[data-group="lighting-rate"]', (value) =>
     setLightingRate(store, value),
   );
@@ -18,7 +17,7 @@ export function mountLightingControls(root: ParentNode, store: Store): void {
   const specularInput = root.querySelector<HTMLInputElement>('[data-field="specular"]');
   const shininessInput = root.querySelector<HTMLInputElement>('[data-field="shininess"]');
 
-  if (!ambientInput || !diffuseInput || !lightAzimuthInput || !lightElevationInput || !lightDistanceInput || !engageIndicator) {
+  if (!ambientInput || !diffuseInput || !lightAzimuthInput || !lightElevationInput || !engageIndicator) {
     throw new Error("lighting-controls: expected stage-6 markup not found");
   }
   if (!specularInput || !shininessInput) {
@@ -28,18 +27,19 @@ export function mountLightingControls(root: ParentNode, store: Store): void {
   const diffuse: HTMLInputElement = diffuseInput;
   const lightAzimuth: HTMLInputElement = lightAzimuthInput;
   const lightElevation: HTMLInputElement = lightElevationInput;
-  const lightDistance: HTMLInputElement = lightDistanceInput;
   const indicator: HTMLElement = engageIndicator;
   const specular: HTMLInputElement = specularInput;
   const shininess: HTMLInputElement = shininessInput;
 
   const ambientField = bindRangeField(ambient, { hint: "Ambient light contribution", formatValue: (v) => v.toFixed(2) });
   const diffuseField = bindRangeField(diffuse, { hint: "Diffuse light contribution", formatValue: (v) => v.toFixed(2) });
-  const lightAzimuthField = bindRangeField(lightAzimuth, { hint: "Light azimuth", formatValue: (v) => `${v}°` });
-  const lightElevationField = bindRangeField(lightElevation, { hint: "Light elevation", formatValue: (v) => `${v}°` });
-  const lightDistanceField = bindRangeField(lightDistance, {
-    hint: "Distance of the light from the origin",
-    formatValue: (v) => v.toFixed(0),
+  const lightAzimuthField = bindRangeField(lightAzimuth, {
+    hint: "Direction the light shines from, rotated left/right",
+    formatValue: (v) => `${v}°`,
+  });
+  const lightElevationField = bindRangeField(lightElevation, {
+    hint: "Direction the light shines from, tilted up/down",
+    formatValue: (v) => `${v}°`,
   });
   const specularField = bindRangeField(specular, { hint: "Specular light contribution", formatValue: (v) => v.toFixed(2) });
   const shininessField = bindRangeField(shininess, { hint: "Specular highlight tightness", formatValue: (v) => v.toFixed(0) });
@@ -48,7 +48,6 @@ export function mountLightingControls(root: ParentNode, store: Store): void {
   diffuse.addEventListener("input", () => setMaterialParam(store, { diffuse: Number(diffuse.value) }));
   lightAzimuth.addEventListener("input", () => setLightParam(store, { azimuthDeg: Number(lightAzimuth.value) }));
   lightElevation.addEventListener("input", () => setLightParam(store, { elevationDeg: Number(lightElevation.value) }));
-  lightDistance.addEventListener("input", () => setLightParam(store, { distance: Number(lightDistance.value) }));
   specular.addEventListener("input", () => setMaterialParam(store, { specular: Number(specular.value) }));
   shininess.addEventListener("input", () => setMaterialParam(store, { shininess: Number(shininess.value) }));
 
@@ -62,8 +61,6 @@ export function mountLightingControls(root: ParentNode, store: Store): void {
     lightAzimuthField.sync(light.azimuthDeg);
     if (document.activeElement !== lightElevation) lightElevation.value = String(light.elevationDeg);
     lightElevationField.sync(light.elevationDeg);
-    if (document.activeElement !== lightDistance) lightDistance.value = String(light.distance);
-    lightDistanceField.sync(light.distance);
     if (document.activeElement !== specular) specular.value = String(material.specular);
     specularField.sync(material.specular);
     if (document.activeElement !== shininess) shininess.value = String(material.shininess);

@@ -1,6 +1,6 @@
 import type { Attrs, ShadeFn } from "./rasterize";
 import type { Vec3 } from "./vec3";
-import { add, dot, mul, normalize, scale, sub, vec3 } from "./vec3";
+import { add, dot, mul, normalize, scale, vec3 } from "./vec3";
 
 export type ShadingMode = "gouraud" | "phong";
 
@@ -14,8 +14,8 @@ export interface Material {
 }
 
 export interface Light {
-  /** Light's position, in view space. */
-  position: Vec3;
+  /** Unit direction the light shines from, in view space. */
+  direction: Vec3;
   /** Light color, each channel in [0, 1]. */
   color: Vec3;
 }
@@ -27,9 +27,9 @@ export interface ShadingVertex {
 }
 
 /** Blinn-Phong lighting: ambient + diffuse + specular, each channel in roughly [0, 1]. */
-export function computeLighting(normal: Vec3, viewDir: Vec3, light: Light, material: Material, surfacePos: Vec3): Vec3 {
+export function computeLighting(normal: Vec3, viewDir: Vec3, light: Light, material: Material): Vec3 {
   const n = normalize(normal);
-  const l = normalize(sub(light.position, surfacePos));
+  const l = normalize(light.direction);
   const v = normalize(viewDir);
   const h = normalize(add(l, v));
 
@@ -54,7 +54,7 @@ function viewDirFrom(viewPos: Vec3): Vec3 {
 
 /** Gouraud shading: light once per vertex, then let the rasterizer interpolate the lit color. */
 export function gouraudVertexAttrs(v: ShadingVertex, light: Light, material: Material): Attrs {
-  const lit = computeLighting(v.viewNormal, viewDirFrom(v.viewPos), light, material, v.viewPos);
+  const lit = computeLighting(v.viewNormal, viewDirFrom(v.viewPos), light, material);
   return { cr: lit.x, cg: lit.y, cb: lit.z };
 }
 
@@ -88,7 +88,7 @@ export function makePhongShadeFn(light: Light, material: Material): ShadeFn {
     const normal = vec3(attrs.nx ?? 0, attrs.ny ?? 0, attrs.nz ?? 0);
     const viewPos = vec3(attrs.px ?? 0, attrs.py ?? 0, attrs.pz ?? 0);
     const color = vec3(attrs.cr ?? material.color.x, attrs.cg ?? material.color.y, attrs.cb ?? material.color.z);
-    const lit = computeLighting(normal, viewDirFrom(viewPos), light, { ...material, color }, viewPos);
+    const lit = computeLighting(normal, viewDirFrom(viewPos), light, { ...material, color });
     return [toByte(lit.x), toByte(lit.y), toByte(lit.z)];
   };
 }

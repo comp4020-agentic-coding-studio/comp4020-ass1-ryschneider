@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import { orbitEye } from "../src/lib/raster/camera";
 import { createFramebuffer } from "../src/lib/raster/framebuffer";
 import { renderScene } from "../src/lib/raster/pipeline";
-import { add, normalize, scale, sub, vec3 } from "../src/lib/raster/vec3";
+import { add, normalize, scale, vec3 } from "../src/lib/raster/vec3";
 import type { Vec3 } from "../src/lib/raster/vec3";
 import { createInitialState, identityTransform } from "../src/state/scene";
 import type { MeshInstance } from "../src/state/scene";
@@ -42,14 +42,13 @@ describe("stage 7: specular highlight is spatially localized", () => {
     state.material.diffuse = 0.6;
     state.material.shininess = 32;
     state.material.enabled = true;
-    state.light = { azimuthDeg: 20, elevationDeg: 30, distance: 5000 / 400, color: vec3(1, 1, 1) };
+    state.light = { azimuthDeg: 20, elevationDeg: 30, color: vec3(1, 1, 1) };
     state.aspectRatio = 1;
     state.primitive = "triangles";
     state.orthographic.halfHeight = 4 / 400;
 
     const reference = vec3(198 / 400, 198 / 400, -5 / 400);
-    const lightPos = orbitEye(deg2rad(state.light.azimuthDeg), deg2rad(state.light.elevationDeg), state.light.distance);
-    const lightDir = normalize(sub(lightPos, reference));
+    const lightDir = orbitEye(deg2rad(state.light.azimuthDeg), deg2rad(state.light.elevationDeg), 1);
     const viewDir = normalize(scale(reference, -1));
     const halfVec = normalize(add(lightDir, viewDir));
 

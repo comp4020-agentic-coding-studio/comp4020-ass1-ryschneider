@@ -138,9 +138,9 @@ export function computeSceneBounds(state: SceneState): SceneBounds {
 }
 
 function buildLight(state: SceneState, view: Mat4): Light {
-  const worldPosition = orbitEye(deg2rad(state.light.azimuthDeg), deg2rad(state.light.elevationDeg), state.light.distance);
-  const viewPosition4 = transformPoint(view, worldPosition);
-  return { position: vec3(viewPosition4.x, viewPosition4.y, viewPosition4.z), color: state.light.color };
+  const worldDirection = orbitEye(deg2rad(state.light.azimuthDeg), deg2rad(state.light.elevationDeg), 1);
+  const direction = transformDirection(view, worldDirection);
+  return { direction, color: state.light.color };
 }
 
 function vertexAttrs(state: SceneState, viewPos: Vec3, viewNormal: Vec3, baseColor: Vec3, light: Light): Attrs {
