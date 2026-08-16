@@ -59,6 +59,13 @@ export function buildModelMatrix(transform: MeshInstance["transform"]): Mat4 {
  * `view.target` to view-space origin, not `(0.5, 0.5)`, so anchoring there
  * instead keeps engaged-view orthographic content centered on its target
  * rather than rendering ~0.5 units off-center.
+ *
+ * The b/t swap that cancels `ndcToScreen`'s Y-flip (see `orthographic`'s doc
+ * comment in mat4.ts) is only correct for that un-engaged screen-space
+ * passthrough -- once the view is engaged, orthographic must flip exactly
+ * once (matching perspective's single flip from `ndcToScreen`), or content
+ * renders vertically mirrored, and thus with reversed apparent winding,
+ * relative to perspective.
  */
 export function buildProjection(state: SceneState): Mat4 {
   if (state.projectionKind === "perspective") {
@@ -69,7 +76,8 @@ export function buildProjection(state: SceneState): Mat4 {
   const halfWidth = halfHeight * state.aspectRatio;
   const cx = state.viewEngaged ? 0 : 0.5;
   const cy = state.viewEngaged ? 0 : 0.5;
-  return orthographic(cx - halfWidth, cx + halfWidth, cy + halfHeight, cy - halfHeight, near, far);
+  const flip = state.viewEngaged ? -1 : 1;
+  return orthographic(cx - halfWidth, cx + halfWidth, cy + flip * halfHeight, cy - flip * halfHeight, near, far);
 }
 
 /**

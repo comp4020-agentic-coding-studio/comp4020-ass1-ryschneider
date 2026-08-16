@@ -177,6 +177,44 @@ describe("buildProjection: orthographic anchor", () => {
   });
 });
 
+describe("buildProjection: orthographic/perspective Y orientation agree once the view is engaged", () => {
+  function topmostLitRow(state: ReturnType<typeof createInitialState>): number {
+    const fb = createFramebuffer(100, 100);
+    renderScene(state, fb, [0, 0, 0]);
+    for (let y = 0; y < fb.height; y++) {
+      for (let x = 0; x < fb.width; x++) {
+        if (fb.color[(y * fb.width + x) * 4] === 255) return y;
+      }
+    }
+    throw new Error("expected vertex was not rendered");
+  }
+
+  it("renders a vertex above the view target in the screen's top half for both projection kinds", () => {
+    function stateAboveTarget(projectionKind: "orthographic" | "perspective") {
+      const state = createInitialState();
+      state.aspectRatio = 1;
+      state.viewEngaged = true;
+      state.projectionKind = projectionKind;
+      state.view = { yawDeg: 0, pitchDeg: 0, distance: 5, target: vec3(0, 0, 0) };
+      state.orthographic = { ...state.orthographic, halfHeight: 2 };
+      state.primitive = "points";
+      state.meshes[0] = {
+        ...state.meshes[0]!,
+        positions: [vec3(0, 1, 0)],
+        normals: [vec3(0, 0, 1)],
+        indices: [],
+        vertexColors: [vec3(1, 1, 1)],
+      };
+      return state;
+    }
+
+    // Before the buildProjection fix, orthographic's un-engaged screen-space-passthrough
+    // Y-flip leaked into the engaged case, mirroring it to the bottom half relative to perspective.
+    expect(topmostLitRow(stateAboveTarget("perspective"))).toBeLessThan(50);
+    expect(topmostLitRow(stateAboveTarget("orthographic"))).toBeLessThan(50);
+  });
+});
+
 describe("computeSceneBounds", () => {
   it("returns the center/radius of a single mesh's positions, respecting its transform", () => {
     const state = createInitialState();
